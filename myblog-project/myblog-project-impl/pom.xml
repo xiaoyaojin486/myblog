@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.myblog</groupId>
+        <artifactId>myblog-project</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>myblog-project-impl</artifactId>
+    <name>myblog-project-impl</name>
+    <description>项目展示模块 - 内部实现（Controller/Service/Mapper/Entity/Convert，包路径 com.myblog.project）</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-project-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,10 @@
+springdoc:
+  api-docs:
+    enabled: false             # 生产关闭接口文档
+
+knife4j:
+  enable: false
+
+logging:
+  level:
+    com.myblog: info

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.myblog</groupId>
+        <artifactId>myblog-article</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>myblog-article-impl</artifactId>
+    <name>myblog-article-impl</name>
+    <description>文章模块 - 内部实现（Controller/Service/Mapper/Entity/Convert，包路径 com.myblog.article）</description>
+
+    <dependencies>
+        <!-- 自身 api -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-article-api</artifactId>
+        </dependency>
+
+        <!-- 公共模块 -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-common</artifactId>
+        </dependency>
+
+        <!-- 跨模块调用：只依赖其他模块的 api -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-category-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-tag-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-comment-api</artifactId>
+        </dependency>
+
+        <!-- Redis（点赞防重复 / 周榜热度） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- MyBatis -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- PageHelper 分页 -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- MySQL 驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- MapStruct 对象转换 -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

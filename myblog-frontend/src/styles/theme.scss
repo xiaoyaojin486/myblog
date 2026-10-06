@@ -1,0 +1,127 @@
+/* ============================================================
+   博客前台主题变量（日夜切换）
+   html.dark 由 store/theme.js 控制切换
+   ============================================================ */
+:root {
+  /* 基础色 */
+  --blog-bg: #eef2fa;
+  --blog-card-bg: rgba(255, 255, 255, 0.72);
+  --blog-card-solid: #ffffff;
+  --blog-surface-2: rgba(255, 255, 255, 0.55);
+  --blog-text: #2b3040;
+  --blog-text-light: #7c869a;
+  --blog-border: rgba(255, 255, 255, 0.75);
+  --blog-divider: rgba(124, 134, 154, 0.18);
+  --blog-primary: #5b8def;
+  --blog-primary-soft: rgba(91, 141, 239, 0.12);
+  --blog-chip-bg: rgba(91, 141, 239, 0.1);
+
+  /* 尺寸与阴影 */
+  --blog-radius: 16px;
+  --blog-radius-sm: 10px;
+  --blog-radius-pill: 999px;
+  --blog-shadow: 0 8px 30px rgba(64, 96, 160, 0.1);
+  --blog-shadow-hover: 0 14px 40px rgba(64, 96, 160, 0.18);
+  --blog-glass-blur: 16px;
+
+  /* 背景光斑 */
+  --blog-blob-1: rgba(122, 170, 255, 0.65);
+  --blog-blob-2: rgba(196, 166, 255, 0.55);
+  --blog-blob-3: rgba(150, 224, 214, 0.5);
+}
+
+html.dark {
+  --blog-bg: #0f1116;
+  --blog-card-bg: rgba(32, 36, 46, 0.66);
+  --blog-card-solid: #1b1f28;
+  --blog-surface-2: rgba(255, 255, 255, 0.05);
+  --blog-text: #e6e9f0;
+  --blog-text-light: #98a1b4;
+  --blog-border: rgba(255, 255, 255, 0.1);
+  --blog-divider: rgba(255, 255, 255, 0.1);
+  --blog-primary: #7aa2ff;
+  --blog-primary-soft: rgba(122, 162, 255, 0.16);
+  --blog-chip-bg: rgba(122, 162, 255, 0.16);
+
+  --blog-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --blog-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.55);
+
+  --blog-blob-1: rgba(58, 92, 200, 0.4);
+  --blog-blob-2: rgba(104, 78, 190, 0.36);
+  --blog-blob-3: rgba(38, 130, 130, 0.3);
+}
+
+body {
+  background: var(--blog-bg);
+  color: var(--blog-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* ============================================================
+   前台玻璃拟态：仅作用于 .front-layout 内（后台样式不受影响）
+   ============================================================ */
+.front-layout .el-card {
+  background: var(--blog-card-bg);
+  border: 1px solid var(--blog-border);
+  border-radius: var(--blog-radius);
+  box-shadow: var(--blog-shadow);
+  backdrop-filter: blur(var(--blog-glass-blur));
+  -webkit-backdrop-filter: blur(var(--blog-glass-blur));
+  color: var(--blog-text);
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+.front-layout .el-card__header {
+  border-bottom: 1px solid var(--blog-divider);
+  padding: 15px 20px;
+}
+.front-layout .el-card__body {
+  padding: 18px 20px;
+}
+/* 分隔线 / 标签 / 空状态 */
+.front-layout .el-divider {
+  border-color: var(--blog-divider);
+}
+.front-layout .el-divider__text {
+  background: transparent;
+  color: var(--blog-text-light);
+}
+.front-layout .el-tag {
+  border: none;
+  background: var(--blog-chip-bg);
+  color: var(--blog-primary);
+  border-radius: var(--blog-radius-pill);
+}
+.front-layout .el-empty__description p {
+  color: var(--blog-text-light);
+}
+
+/* 分页：参考图的圆形按钮 */
+.front-layout .el-pagination {
+  --el-pagination-bg-color: transparent;
+  --el-pagination-button-bg-color: var(--blog-surface-2);
+}
+.front-layout .el-pagination .el-pager li,
+.front-layout .el-pagination button {
+  border-radius: var(--blog-radius-pill);
+  min-width: 30px;
+  background: var(--blog-surface-2) !important;
+  color: var(--blog-text-light);
+}
+.front-layout .el-pagination .el-pager li.is-active {
+  background: var(--blog-primary) !important;
+  color: #fff;
+}
+
+/* 表单控件融入玻璃风格 */
+.front-layout .el-input__wrapper,
+.front-layout .el-textarea__inner {
+  background: var(--blog-surface-2);
+  box-shadow: 0 0 0 1px var(--blog-divider) inset;
+  border-radius: var(--blog-radius-sm);
+}
+
+/* Markdown 正文排版（前台） */
+.front-layout .vuepress-markdown-body {
+  background: transparent;
+  color: var(--blog-text);
+}

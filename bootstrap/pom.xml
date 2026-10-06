@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.myblog</groupId>
+        <artifactId>myblog-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>bootstrap</artifactId>
+    <name>bootstrap</name>
+    <description>唯一启动模块：聚合所有 xxx-impl，打包可执行 Jar</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-common</artifactId>
+        </dependency>
+
+        <!-- 业务模块 impl（新增模块时在此追加并注册到父 POM） -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-user-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-category-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-tag-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-article-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-file-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-project-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-comment-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-system-impl</artifactId>
+        </dependency>
+
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- 接口文档 Knife4j -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

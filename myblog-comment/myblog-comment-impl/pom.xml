@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.myblog</groupId>
+        <artifactId>myblog-comment</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>myblog-comment-impl</artifactId>
+    <name>myblog-comment-impl</name>
+    <description>评论模块 - 内部实现（Controller/Service/Mapper/Entity/Convert，包路径 com.myblog.comment）</description>
+
+    <dependencies>
+        <!-- 自身 api -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-comment-api</artifactId>
+        </dependency>
+
+        <!-- 公共模块 -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-common</artifactId>
+        </dependency>
+
+        <!-- 跨模块调用：只依赖其他模块的 api（校验文章存在） -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-article-api</artifactId>
+        </dependency>
+
+        <!-- 跨模块调用：取当前博主昵称（后台以博主身份回复用） -->
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-user-api</artifactId>
+        </dependency>
+
+        <!-- MyBatis -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- PageHelper 分页 -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- MySQL 驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- MapStruct 对象转换 -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

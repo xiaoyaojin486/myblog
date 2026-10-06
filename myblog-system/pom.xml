@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.myblog</groupId>
+        <artifactId>myblog-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>myblog-system</artifactId>
+    <packaging>pom</packaging>
+    <name>myblog-system</name>
+    <description>系统配置模块（业务聚合：聚合 myblog-system-api 与 myblog-system-impl）</description>
+
+    <modules>
+        <module>myblog-system-api</module>
+        <module>myblog-system-impl</module>
+    </modules>
+</project>
