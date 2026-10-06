@@ -16,6 +16,12 @@
   --blog-primary-soft: rgba(91, 141, 239, 0.12);
   --blog-chip-bg: rgba(91, 141, 239, 0.1);
 
+  /* 进度状态色（已完成 / 已暂停） */
+  --blog-success: #1f9d68;
+  --blog-success-soft: rgba(31, 157, 104, 0.12);
+  --blog-warning: #c47f18;
+  --blog-warning-soft: rgba(196, 127, 24, 0.14);
+
   /* 尺寸与阴影 */
   --blog-radius: 16px;
   --blog-radius-sm: 10px;
@@ -42,6 +48,12 @@ html.dark {
   --blog-primary: #7aa2ff;
   --blog-primary-soft: rgba(122, 162, 255, 0.16);
   --blog-chip-bg: rgba(122, 162, 255, 0.16);
+
+  /* 进度状态色（已完成 / 已暂停） */
+  --blog-success: #4ade80;
+  --blog-success-soft: rgba(74, 222, 128, 0.16);
+  --blog-warning: #fbbf24;
+  --blog-warning-soft: rgba(251, 191, 36, 0.16);
 
   --blog-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   --blog-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.55);

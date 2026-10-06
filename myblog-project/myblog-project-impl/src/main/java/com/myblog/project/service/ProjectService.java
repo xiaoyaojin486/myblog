@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface ProjectService {
 
-    /** 前台：全部上架项目 */
-    List<ProjectVO> listOnline();
+    /** 前台：上架项目列表（progress 非空时按进度筛选） */
+    List<ProjectVO> listOnline(Integer progress);
 
     /** 前台：项目详情（仅上架） */
     ProjectVO getDetail(Long id);

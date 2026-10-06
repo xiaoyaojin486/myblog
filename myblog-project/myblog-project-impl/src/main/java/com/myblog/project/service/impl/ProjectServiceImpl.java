@@ -28,12 +28,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService, ProjectApi {
 
+    /** 项目进度默认值：进行中 */
+    private static final int PROGRESS_IN_PROGRESS = 1;
+
     private final ProjectMapper projectMapper;
     private final ProjectConvert projectConvert;
 
     @Override
+    public List<ProjectVO> listOnline(Integer progress) {
+        return projectConvert.toVOList(projectMapper.selectOnline(progress));
+    }
+
+    /** ProjectApi：其他模块取全部上架项目（不按进度筛选） */
+    @Override
     public List<ProjectVO> listOnline() {
-        return projectConvert.toVOList(projectMapper.selectOnline());
+        return listOnline(null);
     }
 
     @Override
@@ -72,6 +81,9 @@ public class ProjectServiceImpl implements ProjectService, ProjectApi {
         if (entity.getStatus() == null) {
             entity.setStatus(1);
         }
+        if (entity.getProgress() == null) {
+            entity.setProgress(PROGRESS_IN_PROGRESS);
+        }
         projectMapper.insert(entity);
         log.info("新增项目：{}（id={}）", entity.getName(), entity.getId());
         return entity.getId();
@@ -85,9 +97,13 @@ public class ProjectServiceImpl implements ProjectService, ProjectApi {
             throw new BusinessException("项目不存在");
         }
         Integer oldStatus = entity.getStatus();
+        Integer oldProgress = entity.getProgress();
         projectConvert.updateEntity(dto, entity);
         if (dto.getStatus() == null) {
             entity.setStatus(oldStatus);
+        }
+        if (dto.getProgress() == null) {
+            entity.setProgress(oldProgress);
         }
         projectMapper.update(entity);
     }

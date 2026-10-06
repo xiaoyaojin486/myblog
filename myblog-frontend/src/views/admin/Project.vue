@@ -9,11 +9,12 @@ import {
 } from '@/api/project'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
+import { PROJECT_PROGRESS, progressLabel, progressTagType } from '@/constants/projectProgress'
 
 const loading = ref(false)
 const list = ref([])
 const total = ref(0)
-const query = reactive({ pageNum: 1, pageSize: 10, keyword: '', status: null })
+const query = reactive({ pageNum: 1, pageSize: 10, keyword: '', status: null, progress: null })
 
 const dialogVisible = ref(false)
 const saving = ref(false)
@@ -28,6 +29,7 @@ const form = reactive({
   githubUrl: '',
   demoUrl: '',
   sort: 0,
+  progress: 1,
   status: 1
 })
 const rules = {
@@ -58,6 +60,7 @@ function handleSearch() {
 function handleReset() {
   query.keyword = ''
   query.status = null
+  query.progress = null
   handleSearch()
 }
 
@@ -71,6 +74,7 @@ function resetForm() {
     githubUrl: '',
     demoUrl: '',
     sort: 0,
+    progress: 1,
     status: 1
   })
 }
@@ -94,6 +98,7 @@ async function openEdit(row) {
     githubUrl: data.githubUrl || '',
     demoUrl: data.demoUrl || '',
     sort: data.sort ?? 0,
+    progress: data.progress ?? 1,
     status: data.status ?? 1
   })
   dialogVisible.value = true
@@ -143,9 +148,12 @@ onMounted(loadData)
         class="w-220"
         @keyup.enter="handleSearch"
       />
-      <el-select v-model="query.status" placeholder="全部状态" clearable class="w-140">
+      <el-select v-model="query.status" placeholder="上架状态" clearable class="w-140">
         <el-option label="上架" :value="1" />
         <el-option label="下架" :value="0" />
+      </el-select>
+      <el-select v-model="query.progress" placeholder="全部进度" clearable class="w-140">
+        <el-option v-for="p in PROJECT_PROGRESS" :key="p.value" :label="p.label" :value="p.value" />
       </el-select>
       <el-button type="primary" @click="handleSearch">查询</el-button>
       <el-button @click="handleReset">重置</el-button>
@@ -164,6 +172,13 @@ onMounted(loadData)
       <el-table-column prop="name" label="项目名称" min-width="160" show-overflow-tooltip />
       <el-table-column prop="techStack" label="技术栈" min-width="160" show-overflow-tooltip />
       <el-table-column prop="sort" label="排序" width="80" />
+      <el-table-column label="进度" width="90">
+        <template #default="{ row }">
+          <el-tag :type="progressTagType(row.progress)" size="small">
+            {{ progressLabel(row.progress) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.status === 1 ? 'success' : 'info'">
@@ -225,12 +240,19 @@ onMounted(loadData)
           </el-col>
         </el-row>
         <el-row :gutter="16">
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="排序">
               <el-input-number v-model="form.sort" :min="0" :max="999" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="8">
+            <el-form-item label="进度">
+              <el-select v-model="form.progress" class="w-full">
+                <el-option v-for="p in PROJECT_PROGRESS" :key="p.value" :label="p.label" :value="p.value" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="状态">
               <el-switch
                 v-model="form.status"
@@ -274,6 +296,9 @@ onMounted(loadData)
 }
 .w-140 {
   width: 140px;
+}
+.w-full {
+  width: 100%;
 }
 .pagination {
   display: flex;

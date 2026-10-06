@@ -1,8 +1,9 @@
 import request from './request'
 
 // ===== 前台展示 =====
-export function listProjects() {
-  return request.get('/project/list')
+/** 上架项目列表；progress 传入时按进度筛选（0规划中/1进行中/2已完成/3已暂停） */
+export function listProjects(progress) {
+  return request.get('/project/list', { params: { progress } })
 }
 
 export function getProject(id) {

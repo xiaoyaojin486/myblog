@@ -31,6 +31,9 @@ public class ProjectVO {
 
     private Integer sort;
 
+    /** 进度:0规划中,1进行中,2已完成,3已暂停 */
+    private Integer progress;
+
     /** 状态:0下架,1上架 */
     private Integer status;
 

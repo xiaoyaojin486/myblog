@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,10 +30,10 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    /** 上架项目列表（前台） */
+    /** 上架项目列表（前台，可按进度筛选：0规划中,1进行中,2已完成,3已暂停） */
     @GetMapping("/project/list")
-    public Result<List<ProjectVO>> list() {
-        return Result.success(projectService.listOnline());
+    public Result<List<ProjectVO>> list(@RequestParam(value = "progress", required = false) Integer progress) {
+        return Result.success(projectService.listOnline(progress));
     }
 
     /** 项目详情（前台） */

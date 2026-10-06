@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProject } from '@/api/project'
 import MarkdownView from '@/components/MarkdownView.vue'
+import ProgressTag from '@/components/front/ProgressTag.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,7 +32,10 @@ onMounted(async () => {
   <div v-loading="loading">
     <el-card v-if="project" class="card">
       <div class="header">
-        <h1 class="name">{{ project.name }}</h1>
+        <div class="title-row">
+          <h1 class="name">{{ project.name }}</h1>
+          <ProgressTag :progress="project.progress" />
+        </div>
         <div class="links">
           <el-button
             v-if="project.githubUrl"
@@ -75,6 +79,12 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 .name {
   font-size: 25px;

@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS `project` (
     `github_url`  VARCHAR(255) COMMENT '源码地址',
     `demo_url`    VARCHAR(255) COMMENT '演示地址',
     `sort`        INT          DEFAULT 0 COMMENT '排序(越小越靠前)',
+    `progress`    TINYINT      DEFAULT 1 COMMENT '进度:0规划中,1进行中,2已完成,3已暂停',
     `status`      TINYINT      DEFAULT 1 COMMENT '状态:0下架,1上架',
     `create_time` DATETIME     DEFAULT CURRENT_TIMESTAMP,
     `update_time` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
