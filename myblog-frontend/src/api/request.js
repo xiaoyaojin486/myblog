@@ -33,8 +33,16 @@ request.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       router.push('/admin/login')
+      return Promise.reject(error)
     }
-    ElMessage.error('网络异常，请稍后重试')
+    // 区分三种失败：超时 / 真的断了网 / 服务器返回了错误状态码。
+    // 以前一律提示「网络异常」，把 413、500 这类配置或服务端问题
+    // 也伪装成网络故障，排查时会被误导。
+    if (!error.response) {
+      ElMessage.error(error.code === 'ECONNABORTED' ? '请求超时，请重试' : '网络连接失败')
+      return Promise.reject(error)
+    }
+    ElMessage.error(`请求失败（${error.response.status}）`)
     return Promise.reject(error)
   }
 )
