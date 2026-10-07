@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(grep -rnoE '[A-Za-z0-9+/]{40,}={0,2}' \"运维练习方案.md\" deploy/ansible/site.yml)"
+    ]
+  }
+}

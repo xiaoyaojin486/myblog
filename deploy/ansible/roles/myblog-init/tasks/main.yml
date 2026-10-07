@@ -1,0 +1,60 @@
+---
+- name: 创建博客目录结构
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ myblog_root }}"
+    - "{{ myblog_root }}/backend"
+    - "{{ myblog_root }}/frontend"
+    - "{{ myblog_root }}/nginx"
+    - "{{ myblog_root }}/sql"
+    - "{{ myblog_root }}/logs"
+    - "{{ myblog_root }}/redis-data"
+
+- name: 建库 + 建博客专用账号
+  ansible.builtin.command:
+    cmd: docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"'
+    stdin: |
+      CREATE DATABASE IF NOT EXISTS {{ mydb_name }} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+      CREATE USER IF NOT EXISTS '{{ mydb_user }}'@'%' IDENTIFIED BY '{{ vault_mysql_password }}';
+      GRANT ALL PRIVILEGES ON {{ mydb_name }}.* TO '{{ mydb_user }}'@'%';
+      FLUSH PRIVILEGES;
+  changed_when: false     # 语句本身幂等（IF NOT EXISTS），不视为变更
+  no_log: true            # 避免密码出现在 Ansible 输出里
+
+- name: 上传建表脚本
+  ansible.builtin.copy:
+    src: "{{ project_root }}/sql/init.sql"
+    dest: "{{ myblog_root }}/sql/init.sql"
+    mode: "0644"
+
+- name: 执行建表脚本
+  ansible.builtin.shell: >-
+    docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"'
+    < {{ myblog_root }}/sql/init.sql
+  changed_when: false
+  no_log: true
+
+- name: 验证建表结果（myblog 库应有 sys_user 表）
+  ansible.builtin.shell: >-
+    docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "use {{ mydb_name }}; show tables;"'
+  changed_when: false
+  register: myblog_tables
+  failed_when: "'sys_user' not in myblog_tables.stdout"
+  no_log: true
+
+- name: ★ 安全检查：确认另一个项目的 tlias 库仍然存在
+  ansible.builtin.shell: >-
+    docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "show databases;"'
+  changed_when: false
+  register: after_dbs
+  failed_when: "'tlias' not in after_dbs.stdout"
+  no_log: true
+
+- name: 渲染 .env（密钥来自 Vault）
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ myblog_root }}/.env"
+    mode: "0600"

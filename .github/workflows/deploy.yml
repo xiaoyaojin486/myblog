@@ -1,0 +1,144 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:          # 也能在 GitHub 页面上手动点 “Run workflow” 触发
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false   # 同一时间只跑一个部署，避免两次 push 挤在一起
+
+jobs:
+  # ---------- 1. 编译后端 ----------
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 准备 JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Maven 打包
+        run: mvn -B clean package -DskipTests
+
+      - name: 上传 jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: bootstrap/target/bootstrap-1.0.0.jar
+          retention-days: 7
+
+  # ---------- 2. 编译前端 ----------
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: myblog-frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 准备 Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: myblog-frontend/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: 上传 dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: myblog-frontend/dist
+          retention-days: 7
+
+  # ---------- 3. 部署 ----------
+  deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 下载 jar
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: release/backend
+
+      - name: 下载 dist
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: release/frontend/dist
+
+      - name: 组装发布目录
+        run: |
+          cp deploy/backend/Dockerfile release/backend/
+          cp deploy/docker-compose.yml deploy/rollback.sh release/
+          mkdir -p release/nginx
+          cp deploy/nginx/default.conf release/nginx/
+          find release -type f | sort
+
+      - name: 传到服务器暂存目录
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "release/backend,release/frontend,release/nginx,release/docker-compose.yml,release/rollback.sh"
+          target: "/opt/myblog/_incoming"
+          strip_components: 1
+          overwrite: true
+
+      - name: 服务器上切换版本 + 重启 + 冒烟测试
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e
+            cd /opt/myblog
+
+            [ -f .env ] || { echo "❌ 缺少 /opt/myblog/.env，请先跑 ansible-playbook site.yml"; exit 1; }
+
+            # 1) 备份当前版本，供回滚
+            if [ -f backend/app.jar ]; then cp backend/app.jar backend/app.jar.prev; fi
+            if [ -d frontend/dist ]; then rm -rf frontend/dist.prev; mv frontend/dist frontend/dist.prev; fi
+
+            # 2) 新版本就位
+            mv _incoming/backend/app.jar backend/app.jar
+            mkdir -p frontend
+            mv _incoming/frontend/dist frontend/dist
+            cp _incoming/docker-compose.yml docker-compose.yml
+            cp _incoming/nginx/default.conf nginx/default.conf
+            cp _incoming/rollback.sh rollback.sh
+            chmod +x rollback.sh
+            rm -rf _incoming
+
+            # 3) 重建启动（不含 mysql —— 那是另一个项目的）
+            docker compose build backend
+            docker compose up -d backend redis nginx
+            docker compose restart nginx     # 让 nginx 重新解析 backend 的 IP
+
+            # 4) 冒烟测试：走 nginx 的 8081，验证整条链路
+            echo "等待后端启动..."
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:8081/api/config/all >/dev/null 2>&1; then
+                echo "✅ 冒烟测试通过"; exit 0
+              fi
+              sleep 3
+            done
+
+            echo "❌ 冒烟测试失败，最近 50 行日志："
+            docker compose logs --tail=50 backend
+            exit 1

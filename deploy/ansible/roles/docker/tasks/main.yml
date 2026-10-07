@@ -1,0 +1,27 @@
+---
+- name: 创建 /etc/docker 目录
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: "0755"
+
+- name: 备份最初的 daemon.json（只在首次执行时备份）
+  ansible.builtin.copy:
+    src: /etc/docker/daemon.json
+    dest: /etc/docker/daemon.json.orig
+    remote_src: true
+    force: false          # 已存在就不覆盖，保护最初的版本
+  failed_when: false
+
+- name: 配置 Docker 镜像加速与日志轮转
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+  notify: 重启 docker
+
+- name: 预拉基础镜像（首次较慢，之后直接命中缓存）
+  ansible.builtin.command: "docker pull {{ item }}"
+  loop: "{{ base_images }}"
+  register: pull_result
+  changed_when: "'Status: Downloaded newer image' in pull_result.stdout"

@@ -1,0 +1,35 @@
+---
+# ========== 第一步：前置检查（失败就立刻停，给你清楚的报错）==========
+- name: 部署前置检查
+  hosts: myblog
+  gather_facts: false
+  tasks:
+    - name: 检查 Docker 是否可用
+      ansible.builtin.command: docker --version
+      changed_when: false
+
+    - name: 检查网络 {{ myapp_network }} 是否存在（另一个项目建的）
+      ansible.builtin.command: "docker network inspect {{ myapp_network }}"
+      changed_when: false
+
+    - name: 检查容器 {{ mydb_container }} 是否在运行
+      ansible.builtin.command: >-
+        docker inspect -f {% raw %}{{.State.Running}}{% endraw %} {{ mydb_container }}
+      changed_when: false
+      register: db_running
+      failed_when: "'true' not in db_running.stdout"
+
+    - name: 检查另一个项目的 tlias 库存在（后面要确认没被影响）
+      ansible.builtin.shell: >-
+        docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "show databases;"'
+      changed_when: false
+      register: before_dbs
+      failed_when: "'tlias' not in before_dbs.stdout"
+      no_log: true
+
+# ========== 第二步：正式初始化 ==========
+- name: 初始化博客服务器
+  hosts: myblog
+  roles:
+    - docker
+    - myblog-init

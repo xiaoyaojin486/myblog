@@ -1,0 +1,27 @@
+---
+# ===== 路径与端口 =====
+myblog_root: /opt/myblog
+myblog_port: 8081
+
+# ===== Docker 镜像加速器（已填入当前可用地址）=====
+docker_registry_mirrors:
+  - "https://docker.1panel.live/"
+  - "https://docker.m.daocloud.io/"
+  - "https://docker.xuanyuan.me/"
+  - "https://docker.1ms.run/"
+
+# ===== 需要预拉的基础镜像 =====
+base_images:
+  - eclipse-temurin:21-jre
+  - nginx:alpine
+
+# ===== 复用的现有资源（另一个项目的）=====
+myapp_network: myapp_app-network
+mydb_container: myapp-mysql
+
+# ===== 博客自己的库与账号 =====
+mydb_name: myblog
+mydb_user: myblog
+
+# ===== 项目根目录（用于定位 sql/init.sql）=====
+project_root: "{{ playbook_dir }}/../.."

@@ -23,3 +23,5 @@ dist/
 
 # ===== 数据库备份（含旧数据，勿提交）=====
 sql/*backup*.sql
+
+sql/myblog-full.sql
