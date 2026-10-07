@@ -80,6 +80,9 @@ jobs:
 
       - name: 组装发布目录
         run: |
+          # ★ jar 传到这里叫 bootstrap-1.0.0.jar（Maven 的 artifactId-version），
+          #   这里统一改名成 app.jar —— Dockerfile 里写的是 COPY app.jar
+          mv release/backend/bootstrap-*.jar release/backend/app.jar
           cp deploy/backend/Dockerfile release/backend/
           cp deploy/docker-compose.yml deploy/rollback.sh release/
           mkdir -p release/nginx
@@ -115,13 +118,18 @@ jobs:
             if [ -f backend/app.jar ]; then cp backend/app.jar backend/app.jar.prev; fi
             if [ -d frontend/dist ]; then rm -rf frontend/dist.prev; mv frontend/dist frontend/dist.prev; fi
 
+            echo "=== _incoming 里收到的文件 ==="
+            find _incoming -type f | sort
+
             # 2) 新版本就位
-            mv _incoming/backend/app.jar backend/app.jar
+            cp _incoming/backend/app.jar    backend/app.jar
+            cp _incoming/backend/Dockerfile backend/Dockerfile   # ★ compose build 要用它
             mkdir -p frontend
-            mv _incoming/frontend/dist frontend/dist
+            rm -rf frontend/dist
+            mv _incoming/frontend/dist      frontend/dist
             cp _incoming/docker-compose.yml docker-compose.yml
             cp _incoming/nginx/default.conf nginx/default.conf
-            cp _incoming/rollback.sh rollback.sh
+            cp _incoming/rollback.sh        rollback.sh
             chmod +x rollback.sh
             rm -rf _incoming
 
