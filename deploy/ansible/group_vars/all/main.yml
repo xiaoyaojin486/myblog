@@ -11,17 +11,23 @@ docker_registry_mirrors:
   - "https://docker.1ms.run/"
 
 # ===== 需要预拉的基础镜像 =====
+# ★ v2：补上 redis 和 mysql —— v1 漏了这两个，全靠 compose 现场拉，
+#         换个网络环境就是「首次部署卡在拉镜像」。
 base_images:
   - eclipse-temurin:21-jre
   - nginx:alpine
+  - redis:7-alpine
+  - mysql:8.0
 
-# ===== 复用的现有资源（另一个项目的）=====
-myapp_network: myapp_app-network
-mydb_container: myapp-mysql
-
-# ===== 博客自己的库与账号 =====
+# ===== 博客自己的数据库 =====
+# ★ v2：不再有 myapp_network（外部网络），容器名也换成了自己的
+mydb_container: myblog-mysql
 mydb_name: myblog
 mydb_user: myblog
 
 # ===== 项目根目录（用于定位 sql/init.sql）=====
+# ★★ 必须是绝对路径！
+#   playbook 跑在 ~/ansible（WSL 家目录），跟仓库没有相对关系了。
+#   写 "{{ playbook_dir }}/../.." 会算成 /home，Ansible 直接报找不到文件。
+#   （v1 的仓库快照里就残留着这个旧写法，v2 一并修正。）
 project_root: "{{ playbook_dir }}/../.."

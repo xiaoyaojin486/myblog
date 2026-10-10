@@ -1,4 +1,38 @@
 services:
+  # ===== ★ v2 新增：博客自己的数据库，不再借 myapp-mysql =====
+  mysql:
+    image: mysql:8.0          # 服务器本地已有，Ansible 会预拉
+    container_name: myblog-mysql
+    restart: unless-stopped
+    env_file: [.env]          # 复用同一份 .env，少维护一个文件
+    environment:
+      # ★ 官方镜像找的是 MYSQL_USER，而博客的 .env 里叫 MYSQL_USERNAME，
+      #   名字对不上它就不会建这个账号 —— 所以在这里显式映射一次。
+      #   MYSQL_DATABASE / MYSQL_PASSWORD 两个名字刚好一致，不用映射。
+      MYSQL_USER: ${MYSQL_USERNAME}
+    # 三个 ★ 参数：这台机器只有 2G，MySQL 默认配置按 4G 起步的规格调的，撑不住
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --innodb-buffer-pool-size=128m
+      - --performance-schema=OFF      # 省 ~100 MiB，小机器上最值钱的一条
+      - --max-connections=50          # 默认 151，每个连接都要分内存
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      # ★ 这个目录里的 .sql 只在「数据目录为空」时执行一次。
+      #   所以「建表」这件事从 Ansible 手里搬到了这里 —— 首次启动自动完成。
+      #   ⚠️ 数据目录已存在后，改 init.sql 不会再生效（见新版部署方案 7-①）
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    mem_limit: 384m
+    healthcheck:
+      # 真的连上去查一次，确保「服务起来了」且「密码已经生效」
+      test: ["CMD-SHELL", "mysql -h127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s       # MySQL 首次初始化要 30~60 秒，别急着判它失败
+    networks: [myblog]
+
   backend:
     build: ./backend
     image: myblog-backend:latest
@@ -9,15 +43,13 @@ services:
     volumes:
       - ./logs:/app/logs
     depends_on:
+      mysql:
+        condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - myblog
-      - myapp_net          # ★ 为了能按名字访问 myapp-mysql
+    networks: [myblog]        # ★ v2：只剩自己的网络，不再 join myapp_app-network
 
   redis:
-    # ★ 这个镜像应由 Ansible 预拉（group_vars 里的 base_images 要有 redis:7-alpine）。
-    #   没预拉的话 compose 会走 daemon.json 里的加速器现拉 —— 能成，但慢且依赖网络。
     image: redis:7-alpine
     container_name: myblog-redis
     restart: unless-stopped
@@ -43,7 +75,7 @@ services:
     container_name: myblog-nginx
     restart: unless-stopped
     ports:
-      - "8081:80"          # ★ 公网入口；80 被 myapp-frontend 占着
+      - "8081:80"          # ★ 公网入口
     volumes:
       - ./frontend/dist:/usr/share/nginx/html:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
@@ -54,6 +86,5 @@ services:
 networks:
   myblog:
     name: myblog_net
-  myapp_net:
-    name: myapp_app-network
-    external: true         # ★ 另一个项目已经建好的网络，我们只加入、不创建
+# ★ v2：myapp_net 整段删掉了 —— 博客不再需要任何外部网络。
+#   整套 deploy/ 里不再出现 myapp 三个字，可以原样搬到任何一台机器。

@@ -113,6 +113,10 @@ jobs:
             cd /opt/myblog
 
             [ -f .env ] || { echo "❌ 缺少 /opt/myblog/.env，请先跑 ansible-playbook site.yml"; exit 1; }
+            # ★ v2：建表脚本必须在 MySQL 容器「第一次启动」之前就位。
+            #   文件不存在时 Docker 会把挂载点建成一个「目录」，MySQL 会静默地不建表 ——
+            #   后端连得上库、但表不存在，报错离病因很远，所以在这里提前拦住。
+            [ -f sql/init.sql ] || { echo "❌ 缺少 /opt/myblog/sql/init.sql，请先跑 ansible-playbook site.yml"; exit 1; }
 
             # 1) 备份当前版本，供回滚
             if [ -f backend/app.jar ]; then cp backend/app.jar backend/app.jar.prev; fi
@@ -133,20 +137,29 @@ jobs:
             chmod +x rollback.sh
             rm -rf _incoming
 
-            # 3) 重建启动（不含 mysql —— 那是另一个项目的）
+            # 3) 重建启动（★ v2：mysql 也是我们自己的了，一起拉起）
             docker compose build backend
-            docker compose up -d backend redis nginx
+            docker compose up -d
             docker compose restart nginx     # 让 nginx 重新解析 backend 的 IP
 
             # 4) 冒烟测试：走 nginx 的 8081，验证整条链路
-            echo "等待后端启动..."
-            for i in $(seq 1 30); do
+            #    ★ v2：首次部署要等 MySQL 初始化（30~60 秒）+ 后端等 healthcheck，
+            #      所以等待次数从 30 次放宽到 60 次（180 秒）
+            echo "等待后端启动（首次部署要等 MySQL 初始化，可能要 1~2 分钟）..."
+            for i in $(seq 1 60); do
               if curl -fsS http://127.0.0.1:8081/api/config/all >/dev/null 2>&1; then
-                echo "✅ 冒烟测试通过"; exit 0
+                echo "✅ 冒烟测试通过"
+                # ★ 每次 build 都会把上一个 backend 镜像挤成悬空镜像（<none>），
+                #   不清理的话会一直堆着占磁盘（这台机器只有 40G）。
+                #   刻意放在「冒烟测试通过之后」：万一这次部署有问题要回滚，
+                #   上一个镜像还得留着，不能在开头就删。
+                docker image prune -f
+                exit 0
               fi
               sleep 3
             done
 
             echo "❌ 冒烟测试失败，最近 50 行日志："
             docker compose logs --tail=50 backend
+            docker compose logs --tail=50 mysql      # ★ v2：首次部署最可能是 mysql 没起来
             exit 1

@@ -8,24 +8,27 @@
       ansible.builtin.command: docker --version
       changed_when: false
 
-    - name: 检查网络 {{ myapp_network }} 是否存在（另一个项目建的）
-      ansible.builtin.command: "docker network inspect {{ myapp_network }}"
-      changed_when: false
-
-    - name: 检查容器 {{ mydb_container }} 是否在运行
-      ansible.builtin.command: >-
-        docker inspect -f {% raw %}{{.State.Running}}{% endraw %} {{ mydb_container }}
-      changed_when: false
-      register: db_running
-      failed_when: "'true' not in db_running.stdout"
-
-    - name: 检查另一个项目的 tlias 库存在（后面要确认没被影响）
+    # ★ v2：v1 在这里查「myapp 网络 / myapp-mysql 容器 / tlias 库」，
+    #   那三项存在的唯一目的是确认「借来的东西还在」。现在不借了，它们自然消失。
+    #   空出来的位置放一条真正有用的检查：8081 被谁占着。
+    - name: 看看 8081 端口被哪个容器占着
       ansible.builtin.shell: >-
-        docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "show databases;"'
+        docker ps --format {% raw %}'{{.Names}} {{.Ports}}'{% endraw %}
+        | grep ':{{ myblog_port }}->' || true
       changed_when: false
-      register: before_dbs
-      failed_when: "'tlias' not in before_dbs.stdout"
-      no_log: true
+      register: port_owner
+
+    - name: 端口检查
+      # 第二次跑 playbook 时，8081 被自己的 myblog-nginx 占着是正常的；
+      # 被别的容器占着才是问题 —— 这条断言自己分辨这两种情况。
+      ansible.builtin.assert:
+        that:
+          - port_owner.stdout == '' or 'myblog-nginx' in port_owner.stdout
+        fail_msg: >-
+          {{ myblog_port }} 端口被「{{ port_owner.stdout }}」占着，
+          先把它停掉或换个端口，再跑这个 playbook。
+        success_msg: >-
+          {{ myblog_port }} 端口可用（占用者：{{ port_owner.stdout | default('无', true) }}）
 
 # ========== 第二步：正式初始化 ==========
 - name: 初始化博客服务器

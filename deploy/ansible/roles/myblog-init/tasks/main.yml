@@ -1,4 +1,10 @@
 ---
+# ★ v2：从 5 个任务砍到 3 个。
+#   v1 里那 4 个「docker exec myapp-mysql ... 建库/建账号/建表/验证」的任务全部删掉了 ——
+#   因为容器不是我们的，只能钻进去手动补。现在 myblog-mysql 是我们自己的容器，
+#   官方镜像靠环境变量 + docker-entrypoint-initdb.d 在首次启动时自动完成。
+#   还有 1 个「确认 tlias 库还在」的安全检查也删了 —— 我们碰都碰不到它。
+
 - name: 创建博客目录结构
   ansible.builtin.file:
     path: "{{ item }}"
@@ -12,46 +18,15 @@
     - "{{ myblog_root }}/sql"
     - "{{ myblog_root }}/logs"
     - "{{ myblog_root }}/redis-data"
+    - "{{ myblog_root }}/mysql-data"      # ★ v2 新增
 
-- name: 建库 + 建博客专用账号
-  ansible.builtin.command:
-    cmd: docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"'
-    stdin: |
-      CREATE DATABASE IF NOT EXISTS {{ mydb_name }} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-      CREATE USER IF NOT EXISTS '{{ mydb_user }}'@'%' IDENTIFIED BY '{{ vault_mysql_password }}';
-      GRANT ALL PRIVILEGES ON {{ mydb_name }}.* TO '{{ mydb_user }}'@'%';
-      FLUSH PRIVILEGES;
-  changed_when: false     # 语句本身幂等（IF NOT EXISTS），不视为变更
-  no_log: true            # 避免密码出现在 Ansible 输出里
-
-- name: 上传建表脚本
+- name: 上传建表脚本（MySQL 容器首次启动时自动执行它）
+  # ⚠️ 必须在第一次 `docker compose up -d` 之前传上去。
+  #    文件不存在时 Docker 会把挂载点建成「目录」，MySQL 就会静默地不建表。
   ansible.builtin.copy:
     src: "{{ project_root }}/sql/init.sql"
     dest: "{{ myblog_root }}/sql/init.sql"
     mode: "0644"
-
-- name: 执行建表脚本
-  ansible.builtin.shell: >-
-    docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"'
-    < {{ myblog_root }}/sql/init.sql
-  changed_when: false
-  no_log: true
-
-- name: 验证建表结果（myblog 库应有 sys_user 表）
-  ansible.builtin.shell: >-
-    docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "use {{ mydb_name }}; show tables;"'
-  changed_when: false
-  register: myblog_tables
-  failed_when: "'sys_user' not in myblog_tables.stdout"
-  no_log: true
-
-- name: ★ 安全检查：确认另一个项目的 tlias 库仍然存在
-  ansible.builtin.shell: >-
-    docker exec -i {{ mydb_container }} sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -N -e "show databases;"'
-  changed_when: false
-  register: after_dbs
-  failed_when: "'tlias' not in after_dbs.stdout"
-  no_log: true
 
 - name: 渲染 .env（密钥来自 Vault）
   ansible.builtin.template:
