@@ -3,6 +3,13 @@ name: Deploy to Server
 on:
   push:
     branches: [main]
+    # ★ 这次 push 如果【只】动了文档，就整个流程不跑 ——
+    #   简历、手册、方案这些 push 上去只是存档，
+    #   没必要为它们把后端/前端/nginx 重建一遍、还中断几秒服务。
+    #   注意是"只"：只要里面夹着【任何一个】别的文件，照常部署。
+    paths-ignore:
+      - '**.md'
+      - '.claude/**'
   workflow_dispatch:          # 也能在 GitHub 页面上手动点 “Run workflow” 触发
 
 concurrency:
