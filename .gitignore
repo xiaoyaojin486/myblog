@@ -25,3 +25,6 @@ dist/
 sql/*backup*.sql
 
 sql/myblog-full.sql
+# ===== Ansible inventory（含服务器 IP / 用户名，严禁提交）=====
+# 仓库里只留 inventory.ini.example；用之前复制一份改名即可
+deploy/ansible/inventory.ini
