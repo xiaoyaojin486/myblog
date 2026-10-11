@@ -25,6 +25,13 @@ mydb_container: myblog-mysql
 mydb_name: myblog
 mydb_user: myblog
 
+# ===== 数据库备份（见 deploy/备份与恢复手册.md）=====
+# 备份脚本 /opt/myblog/backup.sh 由 CI 投递，它自己管保留天数（KEEP_DAYS）。
+# 这里只管"主机侧"的三样东西：
+backup_dir: "{{ myblog_root }}/backup"   # 备份落点 + OSS 凭据所在目录
+ossutil_version: "1.7.18"                # v1 最后版本（2023-10-30 后停更）；装成 ossutil-<版本> + 软链，方便回退
+oss_backup_bucket: "{{ vault_oss_backup_bucket }}"   # 备份专用桶，和博客文件桶分开
+
 # ===== 项目根目录（用于定位 sql/init.sql）=====
 # ★★ 必须是绝对路径！
 #   playbook 跑在 ~/ansible（WSL 家目录），跟仓库没有相对关系了。

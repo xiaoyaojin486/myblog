@@ -1,0 +1,20 @@
+[Unit]
+Description=博客数据库每日备份
+# 备份要 docker exec 进 MySQL 容器，所以得等 docker 起来；
+# 要传 OSS，所以得等网络通
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+# ★ 桶名不是密码，放在单元里而不是写死在脚本里 ——
+#   改桶名只改 group_vars 重跑 Ansible，不用等一次 push 换脚本。
+Environment=OSS_BACKUP_BUCKET={{ oss_backup_bucket }}
+
+ExecStart={{ myblog_root }}/backup.sh
+
+# Type=oneshot 默认【不设超时】。万一 mysqldump 卡住（比如 MySQL 半死不活），
+# 这个服务会一直挂着，而且因为 timer 不重入，后面每天的备份全部不再触发 ——
+# 静默地停摆。给个上限，让它失败得干脆、能被告警抓到。
+TimeoutStartSec=1800

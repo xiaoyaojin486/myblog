@@ -1,0 +1,12 @@
+# ossutil 的凭据文件 —— 由 Ansible 从 Vault 渲染而来，不要手工改
+# 权限 0600：这个文件里的 AccessKey 等同密码
+#
+# ★ 这个账号【只有读和写，没有删除权限】（RAM 自定义策略里没给 oss:DeleteObject）。
+#   所以备份脚本删不掉 OSS 上的任何东西 —— 这是"防篡改备份"：
+#   即使这台机器的凭据泄漏、或脚本把路径写错，历史备份也清不掉。
+#   过期清理由备份桶的【生命周期规则】在服务端做，用的不是这个账号的权限。
+[Credentials]
+language=CH
+endpoint={{ vault_oss_backup_endpoint }}
+accessKeyID={{ vault_oss_backup_access_key_id }}
+accessKeySecret={{ vault_oss_backup_access_key_secret }}

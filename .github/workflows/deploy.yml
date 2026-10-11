@@ -85,6 +85,10 @@ jobs:
           mv release/backend/bootstrap-*.jar release/backend/app.jar
           cp deploy/backend/Dockerfile release/backend/
           cp deploy/docker-compose.yml deploy/rollback.sh release/
+          # ★ 备份/恢复演练脚本也走这条路：它们是"运维脚本"，和 rollback.sh 一样
+          #   应该随应用一起更新，而不是躺在某个人的笔记本里。
+          #   真正让它们跑起来的 systemd 定时器由 Ansible 投递（见 deploy/ansible）。
+          cp deploy/backup.sh deploy/backup-restore-check.sh release/
           mkdir -p release/nginx
           cp deploy/nginx/default.conf release/nginx/
           find release -type f | sort
@@ -96,7 +100,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          source: "release/backend,release/frontend,release/nginx,release/docker-compose.yml,release/rollback.sh"
+          source: "release/backend,release/frontend,release/nginx,release/docker-compose.yml,release/rollback.sh,release/backup.sh,release/backup-restore-check.sh"
           target: "/opt/myblog/_incoming"
           strip_components: 1
           overwrite: true
@@ -134,7 +138,11 @@ jobs:
             cp _incoming/docker-compose.yml docker-compose.yml
             cp _incoming/nginx/default.conf nginx/default.conf
             cp _incoming/rollback.sh        rollback.sh
-            chmod +x rollback.sh
+            # ★ 备份脚本只更新文件本身，不动 systemd 单元、也不重启任何东西 ——
+            #   定时器每天 03:17 自己会去读这个路径，换成新版就生效。
+            cp _incoming/backup.sh                    backup.sh
+            cp _incoming/backup-restore-check.sh      backup-restore-check.sh
+            chmod +x rollback.sh backup.sh backup-restore-check.sh
             rm -rf _incoming
 
             # 3) 重建启动（★ v2：mysql 也是我们自己的了，一起拉起）

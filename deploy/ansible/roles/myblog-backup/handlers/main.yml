@@ -1,0 +1,5 @@
+---
+- name: 重新加载 systemd
+  # 单元文件变了必须重载，否则 systemctl 还是按旧定义跑
+  ansible.builtin.systemd:
+    daemon_reload: true

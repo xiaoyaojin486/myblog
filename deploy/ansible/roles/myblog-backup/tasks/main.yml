@@ -1,0 +1,107 @@
+---
+# ===========================================================================
+# 数据库备份：让服务器每天自动把 myblog 库导出、校验、传到 OSS
+#
+# 详细说明见 deploy/备份与恢复手册.md
+#
+# ★ 这个 role 只管【主机侧的一次性配置】：
+#     备份目录、ossutil、OSS 凭据、systemd 定时器
+#
+#   备份脚本本身 /opt/myblog/backup.sh【不在这里】——
+#   它由 CI 随每次 push 投递，和 rollback.sh 一样。
+#   这样改容器名、改保留天数都不用再登服务器。
+# ===========================================================================
+
+- name: 创建备份目录
+  ansible.builtin.file:
+    path: "{{ backup_dir }}"
+    state: directory
+    # ★ 0700：这里面放着 OSS 凭据，除了 root 谁都不该看
+    mode: "0700"
+
+# ---------------------------------------------------------------------------
+# ossutil —— 阿里云官方的单文件命令行工具
+# ---------------------------------------------------------------------------
+# 为什么不用 yum 装：CentOS 8 已经 EOL，仓库全下线了，装不了任何东西。
+# 好在 ossutil v1 提供的是【裸二进制】（不是压缩包），下载下来 chmod 就能用 ——
+# 连 unzip 都不需要。
+#
+# ★ 装成带版本号的文件名 + 一个软链：
+#   以后升版本只改 group_vars 里的 ossutil_version，旧版本还留在原地，
+#   要回退就是把软链指回去 —— 比直接覆盖安全得多。
+- name: 看看这个版本的 ossutil 在不在
+  ansible.builtin.stat:
+    path: "/usr/local/bin/ossutil-{{ ossutil_version }}"
+  register: ossutil_bin
+
+- name: 下载 ossutil（已存在就跳过，不重复下载）
+  ansible.builtin.get_url:
+    # ⚠️ 版本号写错就是 404 —— 这个坑踩过一次：1.7.19 并不存在。
+    #    v1 的最后一个版本是 1.7.18（2023-10-30），之后再没发过 v1。
+    #    换版本改 group_vars/all/main.yml 里的 ossutil_version 即可；
+    #    要升 v2 得先解决 CentOS 8 上没有 unzip 的问题（v2 是 zip 包）。
+    url: "https://gosspublic.alicdn.com/ossutil/{{ ossutil_version }}/ossutil64"
+    dest: "/usr/local/bin/ossutil-{{ ossutil_version }}"
+    mode: "0755"
+    timeout: 60
+  when: not ossutil_bin.stat.exists
+
+- name: 把 ossutil 软链到当前版本
+  ansible.builtin.file:
+    src: "/usr/local/bin/ossutil-{{ ossutil_version }}"
+    dest: /usr/local/bin/ossutil
+    state: link
+    force: true
+
+- name: 验证 ossutil 跑得起来
+  # 1.7.18 实测是 Go 静态编译（二进制里没有 GLIBC_x.y 符号引用），
+  # 不依赖系统 glibc，CentOS 8 直接能跑。
+  # 这一步留着是为了拦住「下载成功但跑不起来」——
+  # 在这里失败，好过等凌晨三点备份静默失败。
+  ansible.builtin.command: /usr/local/bin/ossutil --version
+  changed_when: false
+
+# ---------------------------------------------------------------------------
+# OSS 凭据
+# ---------------------------------------------------------------------------
+- name: 写入 ossutil 配置（密钥来自 Vault）
+  ansible.builtin.template:
+    src: ossutil.conf.j2
+    dest: "{{ backup_dir }}/ossutil.conf"
+    # ★ 0600：备份账号的 AccessKey 等同密码
+    mode: "0600"
+
+# ---------------------------------------------------------------------------
+# systemd 定时器
+# ---------------------------------------------------------------------------
+- name: 投递 systemd 单元
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: "0644"
+  loop:
+    - myblog-backup.service
+    - myblog-backup.timer
+  notify: 重新加载 systemd
+
+- name: 预建心跳文件
+  # ★ 这个文件是给 Zabbix 看的（vfs.file.time）：它的 mtime 就是
+  #   「最后一次成功备份是什么时候」。备份脚本每次成功后才 touch 它。
+  #   必须【提前建出来】—— 文件不存在时那个监控项会变成 unsupported，
+  #   触发器拿不到值，等于没监控。
+  #   modification_time: preserve 是关键：重复跑 playbook 不会把它摸新，
+  #   否则每次跑 Ansible 都像是在假装"刚刚备份成功"。
+  ansible.builtin.file:
+    path: "{{ backup_dir }}/.last_success"
+    state: touch
+    mode: "0644"
+    modification_time: preserve
+    access_time: preserve
+
+- name: 启用每日备份定时器
+  ansible.builtin.systemd:
+    name: myblog-backup.timer
+    enabled: true
+    state: started
+    # 单元文件是上面刚投递的，这里立刻重载一次，不用等 handler 收尾
+    daemon_reload: true

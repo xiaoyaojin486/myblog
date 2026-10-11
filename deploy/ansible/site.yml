@@ -36,3 +36,6 @@
   roles:
     - docker
     - myblog-init
+    # ★ 数据库备份：装 ossutil、写 OSS 凭据、起每日备份的 systemd 定时器。
+    #   备份脚本本体由 CI 投递（同 rollback.sh），不在这里。
+    - myblog-backup
