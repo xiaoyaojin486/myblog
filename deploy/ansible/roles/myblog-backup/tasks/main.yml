@@ -19,6 +19,23 @@
     # ★ 0700：这里面放着 OSS 凭据，除了 root 谁都不该看
     mode: "0700"
 
+- name: 创建监控状态目录
+  ansible.builtin.file:
+    path: "{{ myblog_root }}/status"
+    state: directory
+    # ★ 0755：这个目录是【故意公开】的 —— 里面只有一个空的时间戳文件，
+    #   专门给 Zabbix Agent 容器读（它以 zabbix 用户跑，uid 1997，非 root）。
+    #
+    #   为什么不和备份放一起（这个坑真踩过）：
+    #   backup_dir 是 0700，非 root 用户连目录都【穿不过去】，
+    #   哪怕里面那个文件自己是 0644 —— 卡住的是目录的可执行位，不是文件的读位。
+    #   表现是 Agent 报 Permission denied，监控项变成 unsupported，
+    #   触发器拿不到值 → 等于没监控，而且是【安静地】失效。
+    #
+    #   所以把"给监控看的公开信号"和"要保密的凭据"从物理上分开：
+    #   backup_dir 继续 0700，这里单独 0755。
+    mode: "0755"
+
 # ---------------------------------------------------------------------------
 # ossutil —— 阿里云官方的单文件命令行工具
 # ---------------------------------------------------------------------------
@@ -91,8 +108,10 @@
   #   触发器拿不到值，等于没监控。
   #   modification_time: preserve 是关键：重复跑 playbook 不会把它摸新，
   #   否则每次跑 Ansible 都像是在假装"刚刚备份成功"。
+  # ★ 放在 status/ 而不是 backup/：那里面有 OSS 凭据、目录是 0700，
+  #   非 root 的 Agent 容器读不到（见上面「创建监控状态目录」的说明）。
   ansible.builtin.file:
-    path: "{{ backup_dir }}/.last_success"
+    path: "{{ myblog_root }}/status/last_success"
     state: touch
     mode: "0644"
     modification_time: preserve

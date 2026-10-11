@@ -12,6 +12,7 @@
 # 【产出两份副本】
 #     副本② 本地   /opt/myblog/backup/myblog-YYYYmmdd-HHMM.sql.gz    保留 7 天
 #     副本③ 异地   oss://<备份桶>/daily/同名文件                      保留 30 天
+#     心跳     /opt/myblog/status/last_success  ← 给 Zabbix 看的信号（故意不含秘密）
 #
 # 【★ 为什么异地那份的过期清理不在这里做】
 #   备份用的 RAM 账号故意【没有 oss:DeleteObject 权限】。
@@ -25,7 +26,13 @@ set -euo pipefail
 
 BACKUP_DIR=/opt/myblog/backup          # 副本②的落点，也是凭据所在目录
 OSSUTIL_CONF="$BACKUP_DIR/ossutil.conf"
-STAMP_FILE="$BACKUP_DIR/.last_success" # ★ 心跳监控盯的就是它的 mtime（见手册）
+# ★ 心跳文件【故意不放在 backup 目录里】：
+#   那个目录是 0700（里面放着 OSS 凭据），而 Zabbix Agent 是容器、以非 root
+#   （uid 1997）在跑 —— 连目录都穿不过去，vfs.file.time 会直接变成 unsupported。
+#   所以单独给它一个 0755 的目录，里面只放这一个不含任何秘密的空文件。
+#   （这个坑真踩过，见手册第 6 节。）
+STATUS_DIR=/opt/myblog/status
+STAMP_FILE="$STATUS_DIR/last_success"  # ★ 心跳监控盯的就是它的 mtime（见手册）
 ENV_FILE=/opt/myblog/.env
 
 DB_CONTAINER=myblog-mysql
@@ -131,6 +138,11 @@ find "$BACKUP_DIR" -maxdepth 1 -name "${DB_NAME}-*.sql.gz" -type f \
 #   而不是"脚本最后一次跑是什么时候"。
 #   最危险的情况不是脚本报错，而是脚本压根没跑 —— 那时没有任何错误可抓，
 #   只有这个时间戳能暴露问题（见手册「心跳监控」一节）。
+#
+# 目录可能还没建出来（比如 Ansible 还没重跑过）。补一下再 touch ——
+# 否则 touch 会失败，把一次本来成功的备份误报成失败。
+# 有了这句，Ansible 和 CI 谁先谁后都安全。
+mkdir -p "$STATUS_DIR"
 touch "$STAMP_FILE"
 
 log "backup_ok file=$(basename "$OUT") size=$size tables=$tables"
