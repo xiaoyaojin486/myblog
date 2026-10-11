@@ -117,9 +117,13 @@ created_tmp_db=1
 
 # ★ 能导进 $TMP_DB，全靠备份时【没有】加 --databases：
 #   那样文件里才没有写死的 CREATE DATABASE / USE 语句。
-#   如果这里报 "Unknown database 'myblog'"，就是备份那头加错了参数。
+# ★ 但反过来说，文件里也就【没有 USE】—— 所以这里必须自己补一条，
+#   否则 mysql 不知道往哪个库里导，第一条 CREATE TABLE 就报
+#   "ERROR 1046 (3D000): No database selected"。（这个坑真踩过。）
+#   如果报的换成 "Unknown database 'myblog'"，那是另一种错 ——
+#   说明备份那头【加】了 --databases。
 #   （外键检查不用我们操心，mysqldump 的输出里自己带了 SET FOREIGN_KEY_CHECKS=0）
-q < "$TMP_DIR/restore.sql" >/dev/null \
+{ echo "USE \`$TMP_DB\`;"; cat "$TMP_DIR/restore.sql"; } | q >/dev/null \
   || die "导入失败 —— 备份文件本身可能有问题（这正是演练要抓的东西）"
 ok "导入完成"
 
