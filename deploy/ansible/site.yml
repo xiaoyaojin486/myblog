@@ -35,6 +35,11 @@
   hosts: myblog
   roles:
     - docker
+    # ★ 系统日志：给 journald 设容量上限 + 让它落盘持久化。
+    #   和 docker 挨着放，是因为这两个是【同一件事的两半】：
+    #   docker 的 daemon.json 管容器日志轮转，这里管主机 systemd 日志 ——
+    #   两套存储互不相通，摆在一起不容易改错地方（见 日志方案.md §5.7）。
+    - journald
     - myblog-init
     # ★ 数据库备份：装 ossutil、写 OSS 凭据、起每日备份的 systemd 定时器。
     #   备份脚本本体由 CI 投递（同 rollback.sh），不在这里。

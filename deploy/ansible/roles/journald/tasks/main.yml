@@ -1,0 +1,56 @@
+---
+# ===========================================================================
+# 系统日志（journald）：给主机的 systemd 日志【设个上限】并【让它落盘】
+#
+# 详细说明见 日志方案.md：
+#   §3.4  容量上限（出厂默认 min(磁盘 10%, 4G)，这台机是 4G）
+#   §5.5  持久 vs 易失（Storage=persistent 到底解决什么）
+#
+# ★ 这个 role 只管【主机侧的 systemd 日志】，就是 journalctl 看的那些。
+#   容器日志【不归它管】—— 那是 docker role 的 daemon.json（json-file 驱动）
+#   在管。两套存储互不相通，日志方案.md §5.7 专门讲了这个最容易搞混的点。
+#   改日志配置前先想清楚要改哪一套，别改错地方。
+#
+# ★ 为什么用 ini_file 而不是 template（和 daemon.json 的写法不一样）：
+#   /etc/docker/daemon.json 是【我们自己的文件】，整份覆盖没问题；
+#   而 /etc/systemd/journald.conf 是【发行版装出来的文件】，里面那几十行
+#   注释就是 systemd 各选项的默认值说明。整份覆盖等于把说明书删了，
+#   以后没人看得懂这个文件。ini_file 只动我们要的那三行，其余一个字节不碰。
+# ===========================================================================
+
+- name: 备份当前的 journald.conf（只在首次执行时备份）
+  ansible.builtin.copy:
+    src: /etc/systemd/journald.conf
+    dest: /etc/systemd/journald.conf.orig
+    remote_src: true
+    force: false          # 已存在就不覆盖，保住最初那一版
+  failed_when: false
+  # ✏️ 注意这个 .orig 的语义：它是【首次跑 Ansible 那一刻】的样子。
+  #   如果在此之前手工改过，它抓到的就是手工改完的版本，并不是出厂默认。
+  #   真正的出厂默认在 /usr/lib/systemd/journald.conf。
+
+- name: 设置 journald 的容量上限与持久化
+  ansible.builtin.ini_file:
+    path: /etc/systemd/journald.conf
+    section: Journal
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: "0644"
+  loop:
+    - { option: Storage,           value: "{{ journald_storage }}" }
+    - { option: SystemMaxUse,      value: "{{ journald_max_use }}" }
+    - { option: SystemMaxFileSize, value: "{{ journald_max_file_size }}" }
+  notify: 重启 journald
+  # ★ ini_file 不会去解开原有的 #SystemMaxUse= 那行注释，
+  #   而是在 [Journal] 段尾【新增一行】。
+  #   所以同一个选项在文件里会出现两次：
+  #       一次是被注释掉的旧默认值（给人看的说明）
+  #       一次是新增的生效值（段尾那行）
+  #   systemd 读配置时【后面的覆盖前面的】，段尾那行说了算。
+  #   这是预期结果，不是写重复了，别去手删注释行。
+  #
+  # ★ Storage=persistent 的作用（容易漏，漏了就白配）：
+  #   auto（出厂默认）= 只有 /var/log/journal 目录【已经存在】才落盘，
+  #   否则写进 /run/log/journal（内存），重启就没了。
+  #   这台机器上那个目录本来不存在 → 默认行为其实是易失的。
+  #   写死不写 auto，就是为了不依赖"目录恰好在不在"。

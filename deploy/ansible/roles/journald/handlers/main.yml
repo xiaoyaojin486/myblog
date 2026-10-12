@@ -1,0 +1,11 @@
+---
+- name: 重启 journald
+  # ★ 改完 journald.conf 必须让 systemd-journald 重新读一遍，
+  #   否则它照旧配置跑，文件改了等于没改。
+  #
+  # ★ 重启 journald 【不会丢日志】：
+  #   它只是重新打开日志文件，已经写进去的内容都还在。
+  #   这和"journalctl --vacuum-*"主动裁掉历史是两回事，别混。
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted

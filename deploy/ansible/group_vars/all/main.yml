@@ -19,6 +19,17 @@ base_images:
   - redis:7-alpine
   - mysql:8.0
 
+# ===== 系统日志（journald，见 日志方案.md §3.4 / §5.5）=====
+# ★ 只管【主机侧】的 systemd 日志，就是 journalctl 看的那些。
+#   容器日志【不在这里】—— 那由上面 docker 的 daemon.json 管（json-file 驱动）。
+#   两套存储互不相通，改错地方是很典型的白干。
+#
+# ★ 出厂默认上限是 min(所在磁盘的 10%, 4G) —— 这台机 40G，所以默认是 4G。
+#   对只有 40G 的盘来说太宽松了，压到 200M。
+journald_storage: persistent          # ★ 不写死这行：/var/log/journal 不存在时会退化成内存存储，重启全丢
+journald_max_use: "200M"              # journald 总占用上限（到顶才开始清理，不会立刻占满）
+journald_max_file_size: "50M"         # 单个日志文件上限
+
 # ===== 博客自己的数据库 =====
 # ★ v2：不再有 myapp_network（外部网络），容器名也换成了自己的
 mydb_container: myblog-mysql
