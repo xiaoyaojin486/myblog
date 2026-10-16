@@ -14,6 +14,7 @@ import {
   Setting,
   User,
   Postcard,
+  Tools,
   ArrowDown,
   SwitchButton
 } from '@element-plus/icons-vue'
@@ -84,6 +85,10 @@ function handleLogout() {
           <el-menu-item index="/admin/file">
             <el-icon><Files /></el-icon>
             <span>文件管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/toolbox">
+            <el-icon><Tools /></el-icon>
+            <span>工具箱管理</span>
           </el-menu-item>
         </el-menu-item-group>
         <el-menu-item-group title="互动管理">

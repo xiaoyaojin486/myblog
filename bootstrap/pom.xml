@@ -53,6 +53,10 @@
             <groupId>com.myblog</groupId>
             <artifactId>myblog-system-impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.myblog</groupId>
+            <artifactId>myblog-toolbox-impl</artifactId>
+        </dependency>
 
         <!-- Redis -->
         <dependency>

@@ -14,6 +14,7 @@ const routes = [
       { path: 'tag/:id', name: 'TagPage', component: () => import('@/views/front/Tag.vue') },
       { path: 'archive', name: 'Archive', component: () => import('@/views/front/Archive.vue') },
       { path: 'search', name: 'Search', component: () => import('@/views/front/Search.vue') },
+      { path: 'toolbox', name: 'Toolbox', component: () => import('@/views/front/Toolbox.vue') },
       { path: 'about', name: 'About', component: () => import('@/views/front/About.vue') }
     ]
   },
@@ -91,6 +92,12 @@ const routes = [
         name: 'AdminAbout',
         component: () => import('@/views/admin/About.vue'),
         meta: { title: '关于我' }
+      },
+      {
+        path: 'toolbox',
+        name: 'AdminToolbox',
+        component: () => import('@/views/admin/Toolbox.vue'),
+        meta: { title: '工具箱管理' }
       }
     ]
   }

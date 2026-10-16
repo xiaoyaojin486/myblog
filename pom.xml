@@ -28,6 +28,7 @@
         <module>myblog-project</module>
         <module>myblog-comment</module>
         <module>myblog-system</module>
+        <module>myblog-toolbox</module>
         <module>bootstrap</module>
     </modules>
 
@@ -133,6 +134,16 @@
             <dependency>
                 <groupId>com.myblog</groupId>
                 <artifactId>myblog-system-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.myblog</groupId>
+                <artifactId>myblog-toolbox-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.myblog</groupId>
+                <artifactId>myblog-toolbox-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
