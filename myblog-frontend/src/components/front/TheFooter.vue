@@ -6,6 +6,7 @@ import { getPublicProfile } from '@/api/user'
 const configStore = useConfigStore()
 const profile = ref(null)
 const year = new Date().getFullYear()
+const ICP_QUERY_URL = 'https://beian.miit.gov.cn/'
 
 onMounted(async () => {
   try {
@@ -38,7 +39,9 @@ onMounted(async () => {
         <span v-if="!profile?.github && !profile?.email" class="link">联系方式待配置</span>
       </div>
     </div>
-    <div v-if="configStore.config.icp" class="bottom">{{ configStore.config.icp }}</div>
+    <div v-if="configStore.config.icp" class="bottom">
+      <a :href="ICP_QUERY_URL" target="_blank" rel="noopener noreferrer" class="icp-link">{{ configStore.config.icp }}</a>
+    </div>
   </footer>
 </template>
 
@@ -94,5 +97,13 @@ onMounted(async () => {
   text-align: center;
   padding: 12px;
   border-top: 1px solid var(--blog-divider);
+}
+.icp-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.icp-link:hover {
+  color: var(--blog-primary);
 }
 </style>

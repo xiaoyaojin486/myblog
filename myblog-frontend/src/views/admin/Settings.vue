@@ -26,7 +26,11 @@ async function loadData() {
 async function handleSave() {
   saving.value = true
   try {
-    await updateConfigs({ ...form })
+    const payload = {}
+    Object.keys(form).forEach((key) => {
+      payload[key] = typeof form[key] === 'string' ? form[key].trim() : form[key]
+    })
+    await updateConfigs(payload)
     ElMessage.success('保存成功')
     configStore.load(true) // 刷新全局配置，前台文案即时生效
   } catch (e) {
@@ -46,7 +50,11 @@ onMounted(loadData)
     </template>
     <el-form label-width="110px" class="form" :model="form">
       <el-form-item v-for="c in configs" :key="c.configKey" :label="c.remark || c.configKey">
-        <el-input v-model="form[c.configKey]" maxlength="500" />
+        <el-input
+          v-model="form[c.configKey]"
+          maxlength="500"
+          :placeholder="c.configKey === 'icp' ? '如：皖ICP备2026000000号' : ''"
+        />
       </el-form-item>
     </el-form>
     <div class="actions">
