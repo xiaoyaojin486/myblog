@@ -75,7 +75,7 @@ services:
     container_name: myblog-nginx
     restart: unless-stopped
     ports:
-      - "8081:80"          # ★ 公网入口
+      - "80:80"            # ★ 公网入口（已备案域名，走标准 80 端口）
     volumes:
       - ./frontend/dist:/usr/share/nginx/html:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro

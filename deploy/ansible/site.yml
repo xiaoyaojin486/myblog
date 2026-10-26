@@ -10,8 +10,8 @@
 
     # ★ v2：v1 在这里查「myapp 网络 / myapp-mysql 容器 / tlias 库」，
     #   那三项存在的唯一目的是确认「借来的东西还在」。现在不借了，它们自然消失。
-    #   空出来的位置放一条真正有用的检查：8081 被谁占着。
-    - name: 看看 8081 端口被哪个容器占着
+    #   空出来的位置放一条真正有用的检查：myblog_port 被谁占着。
+    - name: 看看 {{ myblog_port }} 端口被哪个容器占着
       ansible.builtin.shell: >-
         docker ps --format {% raw %}'{{.Names}} {{.Ports}}'{% endraw %}
         | grep ':{{ myblog_port }}->' || true
@@ -19,7 +19,7 @@
       register: port_owner
 
     - name: 端口检查
-      # 第二次跑 playbook 时，8081 被自己的 myblog-nginx 占着是正常的；
+      # 第二次跑 playbook 时，myblog_port 被自己的 myblog-nginx 占着是正常的；
       # 被别的容器占着才是问题 —— 这条断言自己分辨这两种情况。
       ansible.builtin.assert:
         that:

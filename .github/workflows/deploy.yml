@@ -8,13 +8,13 @@ on:
     #   没必要为它们把后端/前端/nginx 重建一遍、还中断几秒服务。
     #   注意是"只"：只要里面夹着【任何一个】别的文件，照常部署。
     paths-ignore:
-      - '**.md'
-      - '.claude/**'
-  workflow_dispatch:          # 也能在 GitHub 页面上手动点 “Run workflow” 触发
+      - "**.md"
+      - ".claude/**"
+  workflow_dispatch: # 也能在 GitHub 页面上手动点 “Run workflow” 触发
 
 concurrency:
   group: deploy-prod
-  cancel-in-progress: false   # 同一时间只跑一个部署，避免两次 push 挤在一起
+  cancel-in-progress: false # 同一时间只跑一个部署，避免两次 push 挤在一起
 
 jobs:
   # ---------- 1. 编译后端 ----------
@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: maven
 
       - name: Maven 打包
@@ -52,7 +52,7 @@ jobs:
       - name: 准备 Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: myblog-frontend/package-lock.json
 
@@ -157,12 +157,12 @@ jobs:
             docker compose up -d
             docker compose restart nginx     # 让 nginx 重新解析 backend 的 IP
 
-            # 4) 冒烟测试：走 nginx 的 8081，验证整条链路
+            # 4) 冒烟测试：走 nginx 的 80，验证整条链路
             #    ★ v2：首次部署要等 MySQL 初始化（30~60 秒）+ 后端等 healthcheck，
             #      所以等待次数从 30 次放宽到 60 次（180 秒）
             echo "等待后端启动（首次部署要等 MySQL 初始化，可能要 1~2 分钟）..."
             for i in $(seq 1 60); do
-              if curl -fsS http://127.0.0.1:8081/api/config/all >/dev/null 2>&1; then
+              if curl -fsS http://127.0.0.1/api/config/all >/dev/null 2>&1; then
                 echo "✅ 冒烟测试通过"
                 # ★ 每次 build 都会把上一个 backend 镜像挤成悬空镜像（<none>），
                 #   不清理的话会一直堆着占磁盘（这台机器只有 40G）。

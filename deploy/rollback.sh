@@ -14,4 +14,4 @@ fi
 docker compose up -d backend nginx
 docker compose restart nginx
 
-curl -fsS http://127.0.0.1:8081/api/config/all >/dev/null && echo "✅ 回滚完成"
+curl -fsS http://127.0.0.1/api/config/all >/dev/null && echo "✅ 回滚完成"
