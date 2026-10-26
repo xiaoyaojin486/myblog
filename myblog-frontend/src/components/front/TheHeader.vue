@@ -7,6 +7,7 @@ import {
   Calendar,
   User,
   Tools,
+  Timer,
   Search,
   Sunny,
   Moon
@@ -32,6 +33,7 @@ const navs = [
   { path: '/projects', label: '项目', icon: FolderOpened },
   { path: '/archive', label: '归档', icon: Calendar },
   { path: '/toolbox', label: '工具箱', icon: Tools },
+  { path: '/pomodoro', label: '番茄钟', icon: Timer },
   { path: '/about', label: '关于', icon: User }
 ]
 
@@ -42,6 +44,7 @@ const activeMenu = computed(() => {
   if (path.startsWith('/project')) return '/projects'
   if (path.startsWith('/archive')) return '/archive'
   if (path.startsWith('/toolbox')) return '/toolbox'
+  if (path.startsWith('/pomodoro')) return '/pomodoro'
   if (path.startsWith('/about')) return '/about'
   return path
 })

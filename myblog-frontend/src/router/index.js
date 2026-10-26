@@ -15,6 +15,7 @@ const routes = [
       { path: 'archive', name: 'Archive', component: () => import('@/views/front/Archive.vue') },
       { path: 'search', name: 'Search', component: () => import('@/views/front/Search.vue') },
       { path: 'toolbox', name: 'Toolbox', component: () => import('@/views/front/Toolbox.vue') },
+      { path: 'pomodoro', name: 'Pomodoro', component: () => import('@/views/front/Pomodoro.vue') },
       { path: 'about', name: 'About', component: () => import('@/views/front/About.vue') }
     ]
   },

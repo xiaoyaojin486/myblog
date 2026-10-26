@@ -2,9 +2,14 @@
 import { onMounted } from 'vue'
 import TheHeader from '@/components/front/TheHeader.vue'
 import TheFooter from '@/components/front/TheFooter.vue'
+import PomodoroMini from '@/components/front/PomodoroMini.vue'
 import { useConfigStore } from '@/store/config'
+import { usePomodoroStore } from '@/store/pomodoro'
 
 const configStore = useConfigStore()
+
+// 父组件 setup 先于子页面执行：先把番茄钟状态恢复出来，避免页面首屏闪一下默认值
+usePomodoroStore().init()
 
 onMounted(() => {
   configStore.load() // 拉取站点配置（站点名/描述/页脚等文案）
@@ -20,6 +25,8 @@ onMounted(() => {
       <router-view />
     </main>
     <TheFooter />
+    <!-- 全局番茄钟悬浮计时器：离开番茄钟页面后继续计时 -->
+    <PomodoroMini />
   </div>
 </template>
 

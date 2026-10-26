@@ -26,33 +26,33 @@
 
 ### 后端
 
-| 分类 | 技术 | 版本 |
-| --- | --- | --- |
-| 语言 / 运行时 | Java | 21 |
-| 框架 | Spring Boot | 3.2.5 |
-| 持久层 | MyBatis（注解式 Mapper）+ PageHelper | 3.0.3 / 2.1.0 |
-| 数据库 | MySQL | 8.x |
-| 缓存 | Redis（点赞去重、热门周榜） | 6.x+ |
-| 认证 | JJWT（HS256） | 0.12.5 |
-| 对象转换 | MapStruct | 1.5.5.Final |
-| 对象存储 | 阿里云 OSS SDK | 3.17.4 |
-| 接口文档 | SpringDoc + Knife4j | 4.5.0 |
-| 构建 | Maven（多模块） | 3.8+ |
-| 其他 | Lombok、spring-security-crypto（BCrypt） | — |
+| 分类          | 技术                                     | 版本          |
+| ------------- | ---------------------------------------- | ------------- |
+| 语言 / 运行时 | Java                                     | 21            |
+| 框架          | Spring Boot                              | 3.2.5         |
+| 持久层        | MyBatis（注解式 Mapper）+ PageHelper     | 3.0.3 / 2.1.0 |
+| 数据库        | MySQL                                    | 8.x           |
+| 缓存          | Redis（点赞去重、热门周榜）              | 6.x+          |
+| 认证          | JJWT（HS256）                            | 0.12.5        |
+| 对象转换      | MapStruct                                | 1.5.5.Final   |
+| 对象存储      | 阿里云 OSS SDK                           | 3.17.4        |
+| 接口文档      | SpringDoc + Knife4j                      | 4.5.0         |
+| 构建          | Maven（多模块）                          | 3.8+          |
+| 其他          | Lombok、spring-security-crypto（BCrypt） | —             |
 
 ### 前端
 
-| 分类 | 技术 | 版本 |
-| --- | --- | --- |
-| 框架 | Vue | 3.4 |
-| 构建 | Vite | 5.4 |
-| UI 组件 | Element Plus | 2.8 |
-| 状态管理 | Pinia | 2.2 |
-| 路由 | Vue Router | 4.4 |
-| HTTP | Axios | 1.7 |
+| 分类     | 技术                                            | 版本               |
+| -------- | ----------------------------------------------- | ------------------ |
+| 框架     | Vue                                             | 3.4                |
+| 构建     | Vite                                            | 5.4                |
+| UI 组件  | Element Plus                                    | 2.8                |
+| 状态管理 | Pinia                                           | 2.2                |
+| 路由     | Vue Router                                      | 4.4                |
+| HTTP     | Axios                                           | 1.7                |
 | Markdown | markdown-it + @kangc/v-md-editor + highlight.js | 14.1 / 2.3 / 11.10 |
-| 图表 | ECharts | 5.5 |
-| 样式 | Sass | 1.77 |
+| 图表     | ECharts                                         | 5.5                |
+| 样式     | Sass                                            | 1.77               |
 
 ### 架构约定
 
@@ -66,32 +66,33 @@
 
 ### 前台展示端
 
-| 模块 | 说明 |
-| --- | --- |
-| **首页** | 博主信息卡（头像、昵称、邮箱、GitHub、文章/分类/标签统计）、分页文章流、热门文章（总榜 / 周榜切换）、日历 |
-| **文章详情** | Markdown 渲染与代码高亮；**右侧文章目录（TOC）**：从正文标题树生成、滚动高亮当前章节、点击跳转、吸顶跟随；点赞（Redis 去重，24h 内仅计一次）；标签；评论区 |
-| **评论** | 树形展示、支持多级回复、博主回复带「博主」标识；匿名提交后进入待审核 |
-| **归档 / 分类 / 标签** | 按时间归档，按分类与标签筛选文章 |
-| **项目展示** | 项目列表与详情（Markdown 详细介绍、技术栈、源码/演示地址） |
-| **全站搜索** | 同时搜索文章与项目，按模块分组展示并各自分页；采用**搜索提供者模式**（见下） |
-| **关于我** | 技能与经历展示 |
-| **外观** | 日夜主题切换、毛玻璃卡片、渐变光斑背景 |
+| 模块                   | 说明                                                                                                                                                       |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **首页**               | 博主信息卡（头像、昵称、邮箱、GitHub、文章/分类/标签统计）、分页文章流、热门文章（总榜 / 周榜切换）、日历                                                  |
+| **文章详情**           | Markdown 渲染与代码高亮；**右侧文章目录（TOC）**：从正文标题树生成、滚动高亮当前章节、点击跳转、吸顶跟随；点赞（Redis 去重，24h 内仅计一次）；标签；评论区 |
+| **评论**               | 树形展示、支持多级回复、博主回复带「博主」标识；匿名提交后进入待审核                                                                                       |
+| **归档 / 分类 / 标签** | 按时间归档，按分类与标签筛选文章                                                                                                                           |
+| **项目展示**           | 项目列表与详情（Markdown 详细介绍、技术栈、源码/演示地址）                                                                                                 |
+| **全站搜索**           | 同时搜索文章与项目，按模块分组展示并各自分页；采用**搜索提供者模式**（见下）                                                                               |
+| **关于我**             | 技能与经历展示                                                                                                                                             |
+| **番茄钟**             | 纯前端专注计时（不依赖后端）：专注 / 短休 / 长休三模式、时长与长休间隔可调、跨页面悬浮计时、刷新恢复、今日与近 7 天统计；数据仅保存在浏览器 localStorage   |
+| **外观**               | 日夜主题切换、毛玻璃卡片、渐变光斑背景                                                                                                                     |
 
 > **搜索提供者模式**：`myblog-frontend/src/search/providers.js` 中每个可搜索模块注册一个 provider（`search` / `normalize`），搜索页与搜索框不感知具体业务。新增模块（如游戏）只需追加一个 provider，无需改动搜索页。
 
 ### 后台管理端
 
-| 模块 | 说明 |
-| --- | --- |
-| **仪表盘** | 数据概览 |
-| **文章管理** | Markdown 编辑器、封面与正文插图上传（自动入 OSS）、草稿 / 发布 / 下架 |
-| **项目管理** | 项目 CRUD、封面上传、Markdown 详细介绍 |
-| **分类管理 / 标签管理** | 基础数据维护 |
-| **评论管理** | 待审核优先排序；通过 / 拒绝（区别于删除，记录保留）；批量通过 / 批量拒绝 / 批量删除；**以博主身份直接回复**（回复即通过）；博主标识；所属文章可点击跳转；记录提交者 IP |
-| **文件管理** | 直接管理 OSS 中的文件：分页列表（按业务类型、文件名筛选）、图片缩略图预览、上传、重命名、移动业务目录、批量删除 |
-| **站点信息** | 站点名称、站点描述、ICP 备案号 |
-| **个人资料** | 头像上传、昵称 / 邮箱 / 签名 / GitHub 等社交链接、修改密码 |
-| **关于我** | 技能与经历维护 |
+| 模块                    | 说明                                                                                                                                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **仪表盘**              | 数据概览                                                                                                                                                               |
+| **文章管理**            | Markdown 编辑器、封面与正文插图上传（自动入 OSS）、草稿 / 发布 / 下架                                                                                                  |
+| **项目管理**            | 项目 CRUD、封面上传、Markdown 详细介绍                                                                                                                                 |
+| **分类管理 / 标签管理** | 基础数据维护                                                                                                                                                           |
+| **评论管理**            | 待审核优先排序；通过 / 拒绝（区别于删除，记录保留）；批量通过 / 批量拒绝 / 批量删除；**以博主身份直接回复**（回复即通过）；博主标识；所属文章可点击跳转；记录提交者 IP |
+| **文件管理**            | 直接管理 OSS 中的文件：分页列表（按业务类型、文件名筛选）、图片缩略图预览、上传、重命名、移动业务目录、批量删除                                                        |
+| **站点信息**            | 站点名称、站点描述、ICP 备案号                                                                                                                                         |
+| **个人资料**            | 头像上传、昵称 / 邮箱 / 签名 / GitHub 等社交链接、修改密码                                                                                                             |
+| **关于我**              | 技能与经历维护                                                                                                                                                         |
 
 ### 安全机制
 
@@ -124,9 +125,9 @@ myblog-ai
 └── myblog-frontend/            # 前端工程（Vue 3 + Vite）
     ├── src/api/                # 接口封装（axios）
     ├── src/router/             # 路由（前台 + 后台）
-    ├── src/store/              # Pinia 状态（用户、主题、站点配置）
+    ├── src/store/              # Pinia 状态（用户、主题、站点配置、番茄钟计时）
     ├── src/search/             # 全站搜索提供者注册表
-    ├── src/components/front/   # 前台组件（导航、页脚、评论项等）
+    ├── src/components/front/   # 前台组件（导航、页脚、评论项、番茄钟悬浮计时器等）
     ├── src/views/front/        # 前台页面
     ├── src/views/admin/        # 后台页面
     └── src/styles/             # 设计令牌与全局样式（theme.scss / index.scss）
@@ -138,14 +139,14 @@ myblog-ai
 
 ## 四、环境要求
 
-| 依赖 | 版本要求 | 说明 |
-| --- | --- | --- |
-| JDK | 21 | 项目编译与运行均基于 Java 21 |
-| Maven | 3.8+ | 多模块构建 |
-| MySQL | 8.x | 库名默认 `myblog` |
-| Redis | 6.x+ | 点赞去重与热门周榜依赖 |
-| Node.js | 18+ | 前端构建（建议 18 / 20 LTS） |
-| 阿里云 OSS | — | 需要一个 Bucket 与 AccessKey |
+| 依赖       | 版本要求 | 说明                         |
+| ---------- | -------- | ---------------------------- |
+| JDK        | 21       | 项目编译与运行均基于 Java 21 |
+| Maven      | 3.8+     | 多模块构建                   |
+| MySQL      | 8.x      | 库名默认 `myblog`            |
+| Redis      | 6.x+     | 点赞去重与热门周榜依赖       |
+| Node.js    | 18+      | 前端构建（建议 18 / 20 LTS） |
+| 阿里云 OSS | —        | 需要一个 Bucket 与 AccessKey |
 
 ---
 
@@ -217,11 +218,11 @@ npm run dev
 
 ### 5. 访问
 
-| 入口 | 地址 | 说明 |
-| --- | --- | --- |
-| 前台首页 | http://localhost:5173/ | 博客展示端 |
-| 后台管理 | http://localhost:5173/admin/login | 默认账号 `admin`，密码见 `ADMIN_INIT_PASSWORD` |
-| 接口文档 | http://localhost:8080/api/swagger-ui.html | Knife4j 增强文档亦可通过 `/api/doc.html` 访问 |
+| 入口     | 地址                                      | 说明                                           |
+| -------- | ----------------------------------------- | ---------------------------------------------- |
+| 前台首页 | http://localhost:5173/                    | 博客展示端                                     |
+| 后台管理 | http://localhost:5173/admin/login         | 默认账号 `admin`，密码见 `ADMIN_INIT_PASSWORD` |
+| 接口文档 | http://localhost:8080/api/swagger-ui.html | Knife4j 增强文档亦可通过 `/api/doc.html` 访问  |
 
 ---
 
@@ -229,36 +230,36 @@ npm run dev
 
 ### 环境变量（`.env`）
 
-| 变量 | 必填 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `MYSQL_HOST` / `MYSQL_PORT` | 否 | `localhost` / `3306` | MySQL 地址 |
-| `MYSQL_DATABASE` | 否 | `myblog` | 数据库名 |
-| `MYSQL_USERNAME` | 否 | `root` | 数据库用户 |
-| `MYSQL_PASSWORD` | **是** | — | 数据库密码 |
-| `REDIS_HOST` / `REDIS_PORT` | 否 | `localhost` / `6379` | Redis 地址 |
-| `REDIS_PASSWORD` | 否 | 空 | Redis 密码 |
-| `REDIS_DATABASE` | 否 | `0` | Redis 库序号 |
-| `OSS_ACCESS_KEY_ID` | **是** | — | 阿里云 AccessKeyId |
-| `OSS_ACCESS_KEY_SECRET` | **是** | — | 阿里云 AccessKeySecret |
-| `OSS_ENDPOINT` | **是** | — | OSS 区域端点，如 `oss-cn-beijing.aliyuncs.com` |
-| `OSS_BUCKET_NAME` | **是** | — | Bucket 名称 |
-| `OSS_DOMAIN` | 否 | 空 | 自定义访问域名，留空用 Bucket 默认域名 |
-| `JWT_SECRET` | **是** | — | JWT 签名密钥，**长度 ≥ 32 字符** |
-| `JWT_EXPIRE_HOURS` | 否 | `24` | Token 有效期（小时） |
-| `ADMIN_INIT_PASSWORD` | 否 | `admin123` | 首次启动自动创建管理员时的初始密码 |
+| 变量                        | 必填   | 默认值               | 说明                                           |
+| --------------------------- | ------ | -------------------- | ---------------------------------------------- |
+| `MYSQL_HOST` / `MYSQL_PORT` | 否     | `localhost` / `3306` | MySQL 地址                                     |
+| `MYSQL_DATABASE`            | 否     | `myblog`             | 数据库名                                       |
+| `MYSQL_USERNAME`            | 否     | `root`               | 数据库用户                                     |
+| `MYSQL_PASSWORD`            | **是** | —                    | 数据库密码                                     |
+| `REDIS_HOST` / `REDIS_PORT` | 否     | `localhost` / `6379` | Redis 地址                                     |
+| `REDIS_PASSWORD`            | 否     | 空                   | Redis 密码                                     |
+| `REDIS_DATABASE`            | 否     | `0`                  | Redis 库序号                                   |
+| `OSS_ACCESS_KEY_ID`         | **是** | —                    | 阿里云 AccessKeyId                             |
+| `OSS_ACCESS_KEY_SECRET`     | **是** | —                    | 阿里云 AccessKeySecret                         |
+| `OSS_ENDPOINT`              | **是** | —                    | OSS 区域端点，如 `oss-cn-beijing.aliyuncs.com` |
+| `OSS_BUCKET_NAME`           | **是** | —                    | Bucket 名称                                    |
+| `OSS_DOMAIN`                | 否     | 空                   | 自定义访问域名，留空用 Bucket 默认域名         |
+| `JWT_SECRET`                | **是** | —                    | JWT 签名密钥，**长度 ≥ 32 字符**               |
+| `JWT_EXPIRE_HOURS`          | 否     | `24`                 | Token 有效期（小时）                           |
+| `ADMIN_INIT_PASSWORD`       | 否     | `admin123`           | 首次启动自动创建管理员时的初始密码             |
 
 ### 其他关键配置（`bootstrap/src/main/resources/application.yml`）
 
-| 配置项 | 值 | 说明 |
-| --- | --- | --- |
-| `server.port` | `8080` | 后端端口 |
-| `server.servlet.context-path` | `/api` | 统一接口前缀 |
-| `spring.profiles.active` | `dev` | 部署时改为 `prod` |
-| `spring.servlet.multipart.max-file-size` | `10MB` | 单文件上限（与后端校验一致） |
-| `pagehelper.reasonable` | `true` | 页码越界自动纠正 |
-| `mybatis.configuration.map-underscore-to-camel-case` | `true` | 下划线转驼峰 |
-| `aliyun.oss.dir-prefix` | `myblog/` | OSS 根目录前缀 |
-| `logging.file.name` | `logs/myblog.log` | 日志文件（滚动：10MB × 7 天） |
+| 配置项                                               | 值                | 说明                          |
+| ---------------------------------------------------- | ----------------- | ----------------------------- |
+| `server.port`                                        | `8080`            | 后端端口                      |
+| `server.servlet.context-path`                        | `/api`            | 统一接口前缀                  |
+| `spring.profiles.active`                             | `dev`             | 部署时改为 `prod`             |
+| `spring.servlet.multipart.max-file-size`             | `10MB`            | 单文件上限（与后端校验一致）  |
+| `pagehelper.reasonable`                              | `true`            | 页码越界自动纠正              |
+| `mybatis.configuration.map-underscore-to-camel-case` | `true`            | 下划线转驼峰                  |
+| `aliyun.oss.dir-prefix`                              | `myblog/`         | OSS 根目录前缀                |
+| `logging.file.name`                                  | `logs/myblog.log` | 日志文件（滚动：10MB × 7 天） |
 
 ---
 
@@ -287,66 +288,66 @@ npm run dev
 
 **认证与用户**
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| POST | `/auth/login` | 登录，返回 token 与用户信息 |
-| GET | `/profile` | 前台：博主公开资料 |
-| GET / PUT | `/admin/profile` | 后台：个人资料查询 / 更新 |
-| PUT | `/admin/profile/password` | 修改密码 |
+| 方法      | 路径                      | 说明                        |
+| --------- | ------------------------- | --------------------------- |
+| POST      | `/auth/login`             | 登录，返回 token 与用户信息 |
+| GET       | `/profile`                | 前台：博主公开资料          |
+| GET / PUT | `/admin/profile`          | 后台：个人资料查询 / 更新   |
+| PUT       | `/admin/profile/password` | 修改密码                    |
 
 **文章**
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| GET | `/article/page` | 前台：已发布文章分页（支持分类 / 标签筛选） |
-| GET | `/article/search` | 前台：关键字搜索（标题 / 摘要） |
-| GET | `/article/{id}` | 前台：文章详情 |
-| GET | `/article/latest` | 前台：最新文章 |
-| GET | `/article/hot` | 前台：热门文章（`range=total/week`） |
-| POST | `/article/{id}/like` | 前台：点赞（Redis 去重） |
-| GET | `/admin/article/page` | 后台：文章分页 |
-| POST / PUT / DELETE | `/admin/article`、`/admin/article/{id}` | 后台：新增 / 更新 / 删除 |
-| PUT | `/admin/article/{id}/publish`、`/unpublish` | 后台：发布 / 下架 |
+| 方法                | 路径                                        | 说明                                        |
+| ------------------- | ------------------------------------------- | ------------------------------------------- |
+| GET                 | `/article/page`                             | 前台：已发布文章分页（支持分类 / 标签筛选） |
+| GET                 | `/article/search`                           | 前台：关键字搜索（标题 / 摘要）             |
+| GET                 | `/article/{id}`                             | 前台：文章详情                              |
+| GET                 | `/article/latest`                           | 前台：最新文章                              |
+| GET                 | `/article/hot`                              | 前台：热门文章（`range=total/week`）        |
+| POST                | `/article/{id}/like`                        | 前台：点赞（Redis 去重）                    |
+| GET                 | `/admin/article/page`                       | 后台：文章分页                              |
+| POST / PUT / DELETE | `/admin/article`、`/admin/article/{id}`     | 后台：新增 / 更新 / 删除                    |
+| PUT                 | `/admin/article/{id}/publish`、`/unpublish` | 后台：发布 / 下架                           |
 
 **分类 / 标签 / 项目**
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| GET | `/category/list`、`/tag/list` | 前台列表 |
-| POST / PUT / DELETE | `/admin/category`、`/admin/tag` 等 | 后台维护 |
-| GET | `/project/list`、`/project/{id}` | 前台项目列表 / 详情 |
-| GET / POST / PUT / DELETE | `/admin/project/**` | 后台项目维护 |
+| 方法                      | 路径                               | 说明                |
+| ------------------------- | ---------------------------------- | ------------------- |
+| GET                       | `/category/list`、`/tag/list`      | 前台列表            |
+| POST / PUT / DELETE       | `/admin/category`、`/admin/tag` 等 | 后台维护            |
+| GET                       | `/project/list`、`/project/{id}`   | 前台项目列表 / 详情 |
+| GET / POST / PUT / DELETE | `/admin/project/**`                | 后台项目维护        |
 
 **评论**
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| GET | `/comment/list?articleId=` | 前台：文章已通过评论（树形） |
-| POST | `/comment` | 前台：提交评论（默认待审核，记录 IP） |
-| GET | `/admin/comment/page` | 后台：评论分页（`status`0 待审核 / 1 通过 / 2 拒绝，`keyword` 匹配昵称 / 内容 / 邮箱） |
-| PUT | `/admin/comment/{id}/approve`、`/reject` | 后台：通过 / 拒绝 |
-| PUT | `/admin/comment/batch/status` | 后台：批量改状态（body：`{ ids, status }`） |
-| POST | `/admin/comment/{id}/reply` | 后台：以博主身份回复（自动通过） |
-| DELETE | `/admin/comment/{id}`、`/admin/comment/batch` | 后台：删除 / 批量删除 |
+| 方法   | 路径                                          | 说明                                                                                   |
+| ------ | --------------------------------------------- | -------------------------------------------------------------------------------------- |
+| GET    | `/comment/list?articleId=`                    | 前台：文章已通过评论（树形）                                                           |
+| POST   | `/comment`                                    | 前台：提交评论（默认待审核，记录 IP）                                                  |
+| GET    | `/admin/comment/page`                         | 后台：评论分页（`status`0 待审核 / 1 通过 / 2 拒绝，`keyword` 匹配昵称 / 内容 / 邮箱） |
+| PUT    | `/admin/comment/{id}/approve`、`/reject`      | 后台：通过 / 拒绝                                                                      |
+| PUT    | `/admin/comment/batch/status`                 | 后台：批量改状态（body：`{ ids, status }`）                                            |
+| POST   | `/admin/comment/{id}/reply`                   | 后台：以博主身份回复（自动通过）                                                       |
+| DELETE | `/admin/comment/{id}`、`/admin/comment/batch` | 后台：删除 / 批量删除                                                                  |
 
 **文件（OSS）**
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| POST | `/admin/file/upload?bizType=` | 上传图片 |
-| GET | `/admin/file/page` | 分页查询（`bizType`、`keyword`、分页参数） |
-| PUT | `/admin/file/rename` | 重命名 / 移动业务目录（body：`{ objectKey, newName, targetBizType }`） |
-| DELETE | `/admin/file?objectKey=` | 删除单个文件 |
-| DELETE | `/admin/file/batch` | 批量删除（body：`["objectKey", ...]`） |
+| 方法   | 路径                          | 说明                                                                   |
+| ------ | ----------------------------- | ---------------------------------------------------------------------- |
+| POST   | `/admin/file/upload?bizType=` | 上传图片                                                               |
+| GET    | `/admin/file/page`            | 分页查询（`bizType`、`keyword`、分页参数）                             |
+| PUT    | `/admin/file/rename`          | 重命名 / 移动业务目录（body：`{ objectKey, newName, targetBizType }`） |
+| DELETE | `/admin/file?objectKey=`      | 删除单个文件                                                           |
+| DELETE | `/admin/file/batch`           | 批量删除（body：`["objectKey", ...]`）                                 |
 
 **系统配置 / 关于我**
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| GET | `/config/all` | 前台：站点配置 |
-| GET / PUT | `/admin/config/list`、`/admin/config` | 后台：站点信息 |
-| GET | `/about` | 前台：关于我 |
-| GET / PUT | `/admin/about` | 后台：关于我维护 |
+| 方法      | 路径                                  | 说明             |
+| --------- | ------------------------------------- | ---------------- |
+| GET       | `/config/all`                         | 前台：站点配置   |
+| GET / PUT | `/admin/config/list`、`/admin/config` | 后台：站点信息   |
+| GET       | `/about`                              | 前台：关于我     |
+| GET / PUT | `/admin/about`                        | 后台：关于我维护 |
 
 ---
 
@@ -354,19 +355,19 @@ npm run dev
 
 库名 `myblog`，字符集 `utf8mb4`，表名使用下划线命名法。
 
-| 表名 | 说明 |
-| --- | --- |
-| `sys_user` | 用户表（单博主场景，含昵称、头像、签名、邮箱、GitHub 等社交链接） |
-| `article` | 文章表（标题、摘要、Markdown 正文、封面、分类、浏览量、点赞数、状态） |
-| `category` | 分类表 |
-| `tag` | 标签表 |
-| `article_tag` | 文章 - 标签关联表 |
-| `comment` | 评论表（含 `parent_id` 回复关系、`user_id` 博主标识、`ip` 提交者 IP、`status` 审核状态） |
-| `project` | 项目展示表 |
-| `sys_config` | 系统配置表（站点名称、描述、ICP 备案号等） |
-| `about_skill` | 关于我 - 技能 |
-| `about_experience` | 关于我 - 经历 |
-| `moment` | 最新动态表（表结构已预留，前端入口暂未开放） |
+| 表名               | 说明                                                                                     |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| `sys_user`         | 用户表（单博主场景，含昵称、头像、签名、邮箱、GitHub 等社交链接）                        |
+| `article`          | 文章表（标题、摘要、Markdown 正文、封面、分类、浏览量、点赞数、状态）                    |
+| `category`         | 分类表                                                                                   |
+| `tag`              | 标签表                                                                                   |
+| `article_tag`      | 文章 - 标签关联表                                                                        |
+| `comment`          | 评论表（含 `parent_id` 回复关系、`user_id` 博主标识、`ip` 提交者 IP、`status` 审核状态） |
+| `project`          | 项目展示表                                                                               |
+| `sys_config`       | 系统配置表（站点名称、描述、ICP 备案号等）                                               |
+| `about_skill`      | 关于我 - 技能                                                                            |
+| `about_experience` | 关于我 - 经历                                                                            |
+| `moment`           | 最新动态表（表结构已预留，前端入口暂未开放）                                             |
 
 实体类使用驼峰命名法，MyBatis 已开启下划线转驼峰；所有查询必须显式列出字段，禁止 `SELECT *`。
 
@@ -382,13 +383,13 @@ npm run dev
 myblog/{userId}/{bizType}/yyyy/MM/{uuid}.{ext}
 ```
 
-| `bizType` | 用途 |
-| --- | --- |
-| `avatar` | 头像 |
+| `bizType` | 用途               |
+| --------- | ------------------ |
+| `avatar`  | 头像               |
 | `article` | 文章封面与正文插图 |
-| `project` | 项目封面 |
-| `moment` | 动态配图 |
-| `other` | 其他 |
+| `project` | 项目封面           |
+| `moment`  | 动态配图           |
+| `other`   | 其他               |
 
 **限制与约束**
 
@@ -415,6 +416,7 @@ java -jar bootstrap/target/bootstrap-1.0.0.jar --spring.profiles.active=prod
 ```
 
 生产环境建议：
+
 - 用系统环境变量（或进程管理器注入）提供密钥，而不是依赖 `.env` 文件；
 - 用 `nohup` / systemd / Windows 服务等方式常驻，并把 `logs/` 指向可写目录。
 
