@@ -1,20 +1,30 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useConfigStore } from '@/store/config'
-import { getPublicProfile } from '@/api/user'
+import { ref, computed, onMounted } from "vue";
+import { useConfigStore } from "@/store/config";
+import { getPublicProfile } from "@/api/user";
 
-const configStore = useConfigStore()
-const profile = ref(null)
-const year = new Date().getFullYear()
-const ICP_QUERY_URL = 'https://beian.miit.gov.cn/'
+const configStore = useConfigStore();
+const profile = ref(null);
+const year = new Date().getFullYear();
+const ICP_QUERY_URL = "https://beian.miit.gov.cn/";
+const POLICE_QUERY_URL = "https://beian.mps.gov.cn/#/query/webSearch";
+const POLICE_ICON = "/beian.png"; // 官方图标放 public/ 下，构建时原样拷贝到根目录
+
+// 公安备案跳转只认纯数字 code，正文中的「皖公网安备 / 号 / 空格」不能带入 URL
+const policeCode = computed(() =>
+  (configStore.config.police_icp || "").replace(/\D/g, ""),
+);
+const policeHref = computed(
+  () => `${POLICE_QUERY_URL}?code=${policeCode.value}`,
+);
 
 onMounted(async () => {
   try {
-    profile.value = await getPublicProfile() // 联系方式取「个人资料」
+    profile.value = await getPublicProfile(); // 联系方式取「个人资料」
   } catch (e) {
     // 错误提示已由拦截器处理
   }
-})
+});
 </script>
 
 <template>
@@ -23,7 +33,10 @@ onMounted(async () => {
       <div class="col brand">
         <div class="site">{{ configStore.siteName }}</div>
         <p class="slogan">{{ configStore.siteDescription }}</p>
-        <p class="copyright">© {{ year }} {{ configStore.siteName }} · Powered by Vue3 + Spring Boot</p>
+        <p class="copyright">
+          © {{ year }} {{ configStore.siteName }} · Powered by Vue3 + Spring
+          Boot
+        </p>
       </div>
       <div class="col">
         <div class="col-title">快捷导航</div>
@@ -34,13 +47,45 @@ onMounted(async () => {
       </div>
       <div class="col">
         <div class="col-title">联系我</div>
-        <a v-if="profile?.github" :href="profile.github" target="_blank" rel="noopener" class="link">GitHub</a>
-        <a v-if="profile?.email" :href="`mailto:${profile.email}`" class="link">邮箱</a>
-        <span v-if="!profile?.github && !profile?.email" class="link">联系方式待配置</span>
+        <a
+          v-if="profile?.github"
+          :href="profile.github"
+          target="_blank"
+          rel="noopener"
+          class="link"
+          >GitHub</a
+        >
+        <a v-if="profile?.email" :href="`mailto:${profile.email}`" class="link"
+          >邮箱</a
+        >
+        <span v-if="!profile?.github && !profile?.email" class="link"
+          >联系方式待配置</span
+        >
       </div>
     </div>
-    <div v-if="configStore.config.icp" class="bottom">
-      <a :href="ICP_QUERY_URL" target="_blank" rel="noopener noreferrer" class="icp-link">{{ configStore.config.icp }}</a>
+    <div
+      v-if="configStore.config.icp || configStore.config.police_icp"
+      class="bottom"
+    >
+      <a
+        v-if="configStore.config.icp"
+        :href="ICP_QUERY_URL"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="beian-link"
+      >
+        {{ configStore.config.icp }}
+      </a>
+      <a
+        v-if="configStore.config.police_icp"
+        :href="policeHref"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="beian-link"
+      >
+        <img :src="POLICE_ICON" alt="公安备案图标" class="beian-icon" />
+        <span>{{ configStore.config.police_icp }}</span>
+      </a>
     </div>
   </footer>
 </template>
@@ -94,16 +139,28 @@ onMounted(async () => {
   color: var(--blog-primary);
 }
 .bottom {
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
   padding: 12px;
   border-top: 1px solid var(--blog-divider);
 }
-.icp-link {
+.beian-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: inherit;
   text-decoration: none;
   transition: color 0.2s;
 }
-.icp-link:hover {
+.beian-link:hover {
   color: var(--blog-primary);
+}
+.beian-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 </style>
